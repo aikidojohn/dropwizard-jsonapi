@@ -1,0 +1,2 @@
+dropwizard JASONAPI extension
+==========

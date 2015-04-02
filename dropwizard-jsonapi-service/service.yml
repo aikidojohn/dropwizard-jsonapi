@@ -1,0 +1,20 @@
+server:
+  rootPath: /api/*
+  adminMinThreads: 1
+  adminMaxThreads: 64
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
+
+logging:
+  level: INFO
+  loggers:
+    io.rtr: DEBUG
+  appenders:
+    - type: console
+      threshold: ALL
+      timeZone: EST
