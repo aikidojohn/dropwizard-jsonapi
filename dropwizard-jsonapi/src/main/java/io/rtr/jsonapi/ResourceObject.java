@@ -2,7 +2,7 @@ package io.rtr.jsonapi;
 
 import java.util.Map;
 
-public interface ResourceObject<M> {
+public interface ResourceObject {
 	String getId();
 	String getType();
 	
@@ -11,7 +11,7 @@ public interface ResourceObject<M> {
 		return null;
 	}
 	
-	default M getMeta() {
+	default Object getMeta() {
 		return null;
 	}
 }

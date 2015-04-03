@@ -182,7 +182,7 @@ public class JSONAPI {
 	
 	public static class ResourceObjectBuilder<D> {
 		private D data;
-		private List<ResourceObject<?>> includes = Lists.newLinkedList();
+		private List<Object> includes = Lists.newLinkedList();
 		private Map<String, Object> links = Maps.newHashMap();
 		private Object meta;
 		
@@ -190,7 +190,7 @@ public class JSONAPI {
 			this.data = data;
 		}
 		
-		public ResourceObjectBuilder<D> include(ResourceObject<?> include) {
+		public ResourceObjectBuilder<D> include(Object include) {
 			includes.add(include);
 			return this;
 		}

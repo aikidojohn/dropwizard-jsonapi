@@ -1,13 +1,11 @@
 package io.rtr.jsonapi.impl;
 
-import io.rtr.jsonapi.ResourceObject;
-
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 @JsonInclude(Include.NON_NULL)
 public class ResourceObjectImpl<T> {
@@ -15,7 +13,7 @@ public class ResourceObjectImpl<T> {
 	private T data;
 	
 	private Object meta;
-	private List<ResourceObject<?>> included;
+	private List<Object> included;
 	private Map<String, Object> links;
 	
 	public T getData() {
@@ -30,10 +28,10 @@ public class ResourceObjectImpl<T> {
 	public void setMeta(Object meta) {
 		this.meta = meta;
 	}
-	public List<ResourceObject<?>> getIncluded() {
+	public List<Object> getIncluded() {
 		return included;
 	}
-	public void setIncluded(List<ResourceObject<?>> included) {
+	public void setIncluded(List<Object> included) {
 		this.included = included;
 	}
 	public Map<String, Object> getLinks() {
