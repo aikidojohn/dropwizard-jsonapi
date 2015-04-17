@@ -38,7 +38,25 @@ public class ResourceMappingContext {
         buildMappings();
         return mappings.get(resource);
     }
+    
+    public Mapping getMapping(String resourceName) {
+    	buildMappings();
+    	Class<?> resource = getClassByName(resourceName);
+    	if (resource == null) {
+    		return null;
+    	}
+        return mappings.get(resource);
+    }
 
+    private Class<?> getClassByName(String resourceName) {
+    	try {
+			return Class.forName(resourceName);
+		} catch (ClassNotFoundException e) {
+			System.out.println("Couldn't find resource class " + resourceName);
+			return null;
+		}
+    }
+    
     private void buildMappings() {
         if (mappings != null) {
             return;

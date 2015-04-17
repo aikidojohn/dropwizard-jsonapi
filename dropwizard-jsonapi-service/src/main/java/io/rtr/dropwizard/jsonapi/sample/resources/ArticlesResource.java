@@ -33,6 +33,6 @@ public class ArticlesResource {
 	@GET
 	@Path("{id}/author")
 	public Response getAuthor(@PathParam("id") String id) {	    
-		return Response.ok(store.getPerson(id)).build();
+		return Response.ok(store.getAuthor(id)).build();
 	}
 }

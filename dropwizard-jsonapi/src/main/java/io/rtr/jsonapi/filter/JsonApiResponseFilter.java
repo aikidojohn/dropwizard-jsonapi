@@ -9,10 +9,11 @@ import io.rtr.jsonapi.impl.ResourceObjectImpl;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
-import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -34,87 +35,66 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 	private ResourceMappingContext resourceMapping;
 	
 	@Override
-	public void filter(ContainerRequestContext requestContext,
-			ContainerResponseContext responseContext) throws IOException {
+	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
 		if (!isApplicable(requestContext)) {
 			System.out.println("JSON API not requested");
 			return;
 		}
 		System.out.println("HANDLING JSON API");
 		
-		Object entity = responseContext.getEntity();
+		final Object entity = responseContext.getEntity();
 		if (entity != null && !uriInfo.getMatchedResources().isEmpty()) {
 			List<Object> resources = uriInfo.getMatchedResources();
 			Object resource = resources.get(0);
-			Mapping mapping = resourceMapping.getMapping(resource.getClass());
-			System.out.println(mapping);
-			
+			Mapping requestResourceMapping= resourceMapping.getMapping(resource.getClass());
 
+			ApiDocumentBuilder<Object> docBuilder = null;
 			if (entity.getClass().isArray()) {
-				Object[] entityArray = (Object[])entity;
-				List<ResourceObjectImpl<Object>> resourceObjects = Lists.newArrayList();
-				for (Object obj : entityArray) {
-					ResourceObject resourceAnnotation = obj.getClass().getDeclaredAnnotation(ResourceObject.class);
-					Mapping m = mapping;
-					if (resourceAnnotation != null) {
-						try {
-							m = resourceMapping.getMapping(Class.forName(resourceAnnotation.resource()));
-						} catch (ClassNotFoundException e) {
-							e.printStackTrace();
-						}
-					}
-					resourceObjects.add(buildEntity(m, obj));
-				}
-				
-				ApiDocumentBuilder<?> docBuilder = JSONAPI.document(resourceObjects);
-				docBuilder.link("self", uriInfo.getRequestUri().toString());
-				responseContext.setEntity(docBuilder.build(uriInfo));
-			} else if (Collection.class.isAssignableFrom(entity.getClass())) {
-				Collection<?> entityCollection = (Collection<?>)entity;
-				List<ResourceObjectImpl<Object>> resourceObjects = Lists.newArrayList();
-				for (Object obj : entityCollection) {
-					ResourceObject resourceAnnotation = obj.getClass().getDeclaredAnnotation(ResourceObject.class);
-					Mapping m = mapping;
-					if (resourceAnnotation != null) {
-						try {
-							m = resourceMapping.getMapping(Class.forName(resourceAnnotation.resource()));
-						} catch (ClassNotFoundException e) {
-							e.printStackTrace();
-						}
-					}
-					resourceObjects.add(buildEntity(m, obj));
-				}
+				final Object[] entityArray = (Object[])entity;
+				final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(Arrays.stream(entityArray), requestResourceMapping);
+
+				docBuilder = JSONAPI.document(resourceObjects);
+			} 
+			else if (Collection.class.isAssignableFrom(entity.getClass())) {
+				final Collection<?> entityCollection = (Collection<?>)entity;
+				final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(entityCollection.stream(), requestResourceMapping);
 			
-				ApiDocumentBuilder<?> docBuilder = JSONAPI.document(resourceObjects);
-				docBuilder.link("self", uriInfo.getRequestUri().toString());
-				responseContext.setEntity(docBuilder.build(uriInfo));
-			} else {
-				Mapping m = mapping;
-				ResourceObject resourceAnnotation = entity.getClass().getDeclaredAnnotation(ResourceObject.class);
-				if (resourceAnnotation != null) {
-					try {
-						m = resourceMapping.getMapping(Class.forName(resourceAnnotation.resource()));
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					}
-				}
-				ResourceObjectImpl<?> data = buildEntity(m, entity);
-				ApiDocumentBuilder docBuilder = JSONAPI.document(data);
-				docBuilder.link("self", uriInfo.getRequestUri().toString());
-				responseContext.setEntity(docBuilder.build(uriInfo));
+				docBuilder = JSONAPI.document(resourceObjects);
+			} 
+			else {
+				final ResourceObjectImpl<Object> data = buildEntity(requestResourceMapping, entity);
+				docBuilder = JSONAPI.document(data);
 			}
+			
+			docBuilder.link("self", uriInfo.getRequestUri().toString());
+			responseContext.setEntity(docBuilder.build(uriInfo));
 		}
 	}
 	
-	private ResourceObjectImpl buildEntity(Mapping mapping, Object entity) {
-		ResourceObjectBuilder dataBuilder = JSONAPI.data(entity);
-		for (String key : mapping.getKeys()) {
-			UriTemplate template = new UriTemplate(mapping.getPathTemplate(key));
-			String uri = template.createURI(getId(entity));
-			dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
+	private ResourceObjectImpl buildEntity(final Mapping mapping, final Object entity) {
+		final ResourceObject resourceAnnotation = entity.getClass().getDeclaredAnnotation(ResourceObject.class);
+		Mapping m = mapping;
+		if (resourceAnnotation != null) {
+			m = resourceMapping.getMapping(resourceAnnotation.resource());
 		}
-		ResourceObjectImpl<?> data = dataBuilder.build();
-		return data;
+		
+		final ResourceObjectBuilder dataBuilder = JSONAPI.data(entity);
+		if (m != null) {
+			for (String key : m.getKeys()) {
+				UriTemplate template = new UriTemplate(m.getPathTemplate(key));
+				String uri = template.createURI(getId(entity));
+				dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
+			}
+		}
+		return dataBuilder.build();
+	}
+	
+	private List<ResourceObjectImpl<Object>> buildEntityList(Stream<?> source, Mapping requestResourceMapping) {
+		final List<ResourceObjectImpl<Object>> resourceObjects = Lists.newArrayList();
+		source.forEach(obj -> {
+			resourceObjects.add(buildEntity(requestResourceMapping, obj));
+		});
+		return resourceObjects;
 	}
 	
 	private String getId(Object obj) {
@@ -138,12 +118,4 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 				.stream()
 				.anyMatch(m -> JSONAPI_MEDIATYPE.equals(m));
 	}
-	
-	private void processLinks() {
-		List<Object> resources = uriInfo.getMatchedResources();
-		Object resource = resources.get(0);
-		resource.getClass().getAnnotation(Path.class);
-
-	}
-
 }

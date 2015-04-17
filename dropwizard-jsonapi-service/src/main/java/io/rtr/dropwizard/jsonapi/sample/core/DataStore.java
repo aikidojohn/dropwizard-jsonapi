@@ -12,7 +12,8 @@ import com.google.common.collect.Maps;
 public class DataStore {
 	private Map<String, Article> articles = Maps.newHashMap();
 	private Map<String, Person> people = Maps.newHashMap();
-	private Map<String, List<Article>> authors = Maps.newHashMap();
+	private Map<String, List<Article>> authorArticles = Maps.newHashMap();
+	private Map<String, Person> articleAuthors = Maps.newHashMap();
 	
 	public DataStore() {
 		addArticle("1", "My Amazing Article about JSON API", "Lorem ipsum dolor sit amet.");
@@ -40,16 +41,22 @@ public class DataStore {
 	}
 	
 	public List<Article> getArticlesByAuthor(String authorId) {
-		return authors.get(authorId);
+		return authorArticles.get(authorId);
+	}
+	
+	public Person getAuthor(String articleId) {
+		return articleAuthors.get(articleId);
 	}
 	
 	private void addAuthor(String personId, String articleId) {
-		List<Article> articles = authors.get(personId);
+		List<Article> articles = authorArticles.get(personId);
 		if (articles == null) {
 			articles = Lists.newArrayList();
-			authors.put(personId, articles);
+			authorArticles.put(personId, articles);
 		}
 		articles.add(getArticle(articleId));
+		
+		articleAuthors.put(articleId, getPerson(personId));
 	}
 	
 	private void addPerson(String id ,String name, String company) {
