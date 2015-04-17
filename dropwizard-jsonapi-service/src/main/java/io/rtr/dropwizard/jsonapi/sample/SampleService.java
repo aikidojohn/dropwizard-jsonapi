@@ -2,20 +2,22 @@ package io.rtr.dropwizard.jsonapi.sample;
 
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
-import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.rtr.dropwizard.jsonapi.sample.health.SampleHealthCheck;
+import io.rtr.dropwizard.jsonapi.sample.resources.ArticlesResource;
+import io.rtr.dropwizard.jsonapi.sample.resources.PeopleResource;
 import io.rtr.dropwizard.jsonapi.sample.resources.SampleResource;
+import io.rtr.jsonapi.filter.JsonApiFeature;
+
+import org.glassfish.jersey.servlet.ServletContainer;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 public class SampleService extends Application<SampleConfiguration>{
 
 	private final Class<?>[] HEALTH_CHECKS = { SampleHealthCheck.class };
-	private final Class<?>[] RESOURCES = { SampleResource.class};
+	private final Class<?>[] RESOURCES = { SampleResource.class, ArticlesResource.class, PeopleResource.class};
 	private final Class<?>[] MANAGED = { };
 	
 	@Override
@@ -29,17 +31,22 @@ public class SampleService extends Application<SampleConfiguration>{
 
 	@Override
 	public void run(SampleConfiguration configuration, Environment environment) throws Exception {
-		Injector injector = Guice.createInjector(new SampleModule(configuration, environment));
+		//environment.jersey().packages("org.glassfish.jersey.examples.linking");
+		//environment.jersey().register(DeclarativeLinkingFeature.class);
+		environment.jersey().packages("io.rtr.jsonapi.filter");
+		environment.jersey().register(JsonApiFeature.class);
+		
+		environment.jersey().register(new SampleModule(configuration, environment));
 		
 		for (Class<?> c : MANAGED) {
-			environment.jersey().register((Managed)injector.getInstance(c));
+			environment.jersey().register(c);
 		}
 		for (Class<?> c : RESOURCES) {
-			environment.jersey().register(injector.getInstance(c));
+			environment.jersey().register(c);
 		}
-		for (Class<?> c : HEALTH_CHECKS) {
-			environment.healthChecks().register(c.getName(), (HealthCheck)injector.getInstance(c));
-		}
+		
+		SampleHealthCheck health = new SampleHealthCheck();
+		environment.healthChecks().register(SampleHealthCheck.class.getName(), health);
 	}
 	
 	public static void main(String[] args) throws Exception {

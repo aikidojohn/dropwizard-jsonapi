@@ -1,10 +1,13 @@
 package io.rtr.dropwizard.jsonapi.sample;
 
 import io.dropwizard.setup.Environment;
+import io.rtr.dropwizard.jsonapi.sample.core.DataStore;
 
-import com.google.inject.AbstractModule;
+import javax.inject.Singleton;
 
-public class SampleModule extends AbstractModule {
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+
+public class SampleModule extends AbstractBinder {
 	private final SampleConfiguration config;
 	private final Environment env;
 	public SampleModule(SampleConfiguration config, Environment env) {
@@ -13,8 +16,7 @@ public class SampleModule extends AbstractModule {
 	}
 	@Override
 	protected void configure() {
-		bind(SampleConfiguration.class).toInstance(config);
-		bind(Environment.class).toInstance(env);
+		bindAsContract(DataStore.class).in(Singleton.class);
 	}
 
 }

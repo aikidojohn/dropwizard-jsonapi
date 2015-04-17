@@ -40,7 +40,4 @@ public class ResourceObjectImpl<T> {
 	public void setLinks(Map<String, Object> links) {
 		this.links = links;
 	}
-	
-	
-
 }

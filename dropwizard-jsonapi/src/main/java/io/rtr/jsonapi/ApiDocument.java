@@ -3,8 +3,8 @@ package io.rtr.jsonapi;
 import java.util.List;
 import java.util.Map;
 
-public interface ApiDocument<D, M> {
-	D getData();
+public interface ApiDocument {
+	Object getData();
 	
 	default List<Object> getIncluded() {
 		return null;
@@ -14,7 +14,7 @@ public interface ApiDocument<D, M> {
 		return null;
 	}
 	
-	default M getMeta() {
+	default Object getMeta() {
 		return null;
 	}
 }

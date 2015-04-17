@@ -14,7 +14,11 @@ import com.google.common.collect.Maps;
 
 public class JSONAPI {
 
-	public static <D> ApiDocumentBuilder<D> document(D data) {
+	public static <D> ApiDocumentBuilder<D> document(ResourceObjectImpl<D> data) {
+		return new ApiDocumentBuilder<D>(data);
+	}
+	
+	public static <D> ApiDocumentBuilder<D> document(List<ResourceObjectImpl<D>> data) {
 		return new ApiDocumentBuilder<D>(data);
 	}
 	
@@ -132,14 +136,21 @@ public class JSONAPI {
 			}
 		}
 	}
+	
 	public static class ApiDocumentBuilder<D> {
-		private D data;
+		private ResourceObjectImpl<D> data;
+		private List<ResourceObjectImpl<D>> dataList;
+		
 		private List<Object> includes = Lists.newLinkedList();
 		private Map<String, Object> links = Maps.newHashMap();
 		private Object meta;
 		
-		public ApiDocumentBuilder(D data) {
+		public ApiDocumentBuilder(ResourceObjectImpl<D> data) {
 			this.data = data;
+		}
+		
+		public ApiDocumentBuilder(List<ResourceObjectImpl<D>> data) {
+			this.dataList = data;
 		}
 		
 		public ApiDocumentBuilder<D> include(Object include) {
@@ -152,7 +163,7 @@ public class JSONAPI {
 			return this;
 		}
 		
-		public ApiDocumentBuilder<D> link(String key, Link<?> link) {
+		public ApiDocumentBuilder<D> link(String key, JsonLink<?> link) {
 			links.put(key, link);
 			return this;
 		}
@@ -163,9 +174,14 @@ public class JSONAPI {
 			return this;
 		}
 		
-		public ApiDocument<D, ?> build() {
-			ApiDocumentImpl<D, Object> doc = new ApiDocumentImpl<D, Object>();
-			doc.setData(data);
+		public ApiDocument build(UriInfo uriInfo) {
+			ApiDocumentImpl doc = new ApiDocumentImpl();
+			if (data != null) {
+				doc.setData(data);
+			} else {
+				doc.setData(dataList);
+			}
+			
 			if (!includes.isEmpty()) {
 				doc.setIncluded(includes);
 			}
@@ -200,7 +216,7 @@ public class JSONAPI {
 			return this;
 		}
 		
-		public ResourceObjectBuilder<D> link(String key, Link<?> link) {
+		public ResourceObjectBuilder<D> link(String key, JsonLink<?> link) {
 			links.put(key, link);
 			return this;
 		}

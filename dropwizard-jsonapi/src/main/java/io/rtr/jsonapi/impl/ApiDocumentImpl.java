@@ -9,20 +9,20 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
-public class ApiDocumentImpl<D, M> implements ApiDocument<D, M> {
+public class ApiDocumentImpl implements ApiDocument{
 	
-	private D data;
-	private M meta;
+	private Object data;
+	private Object meta;
 	private List<Object> included;
 	private Map<String, Object> links;
 	
 	@Override
-	public D getData() {
+	public Object getData() {
 		return data;
 	}
 
 	@Override
-	public M getMeta() {
+	public Object getMeta() {
 		return meta;
 	}
 	
@@ -36,11 +36,11 @@ public class ApiDocumentImpl<D, M> implements ApiDocument<D, M> {
 		return links;
 	}
 
-	public void setData(D data) {
+	public void setData(Object data) {
 		this.data = data;
 	}
 
-	public void setMeta(M meta) {
+	public void setMeta(Object meta) {
 		this.meta = meta;
 	}
 

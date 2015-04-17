@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(Include.NON_NULL)
-public class Link<M> {
+public class JsonLink<M> {
 
 	private final String self;
 	private final String related;
@@ -16,7 +16,7 @@ public class Link<M> {
 	private final M meta;
 	
 	@JsonCreator
-	public Link(@JsonProperty("self") String self, @JsonProperty("related") String related, @JsonProperty("linkage") List<Linkage> linkage,
+	public JsonLink(@JsonProperty("self") String self, @JsonProperty("related") String related, @JsonProperty("linkage") List<Linkage> linkage,
 			@JsonProperty("meta") M meta) {
 		super();
 		this.self = self;
@@ -25,7 +25,7 @@ public class Link<M> {
 		this.meta = meta;
 	}
 
-	public Link(String self, String related, List<Linkage> linkage) {
+	public JsonLink(String self, String related, List<Linkage> linkage) {
 		this(self, related, linkage, null);
 	}
 	
