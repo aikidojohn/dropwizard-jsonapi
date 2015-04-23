@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ResourceObject {
-	public String resource();
+public @interface ApiResource {
+	public Class<?> model();
 }

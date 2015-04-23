@@ -1,12 +1,9 @@
 package io.rtr.dropwizard.jsonapi.sample.models;
 
-import io.rtr.jsonapi.annotation.ResourceObject;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
-@ResourceObject(resource="io.rtr.dropwizard.jsonapi.sample.resources.ArticlesResource")
 public class Article {
 	private String id;
 	private String type = "articles";

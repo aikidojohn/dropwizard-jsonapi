@@ -75,10 +75,12 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 	}
 	
 	private ResourceObjectImpl buildEntity(final Mapping mapping, final Object entity) {
-		final ResourceObject resourceAnnotation = entity.getClass().getDeclaredAnnotation(ResourceObject.class);
+		//final ResourceObject resourceAnnotation = entity.getClass().getDeclaredAnnotation(ResourceObject.class);
+		final Mapping entityMapping = resourceMapping.getMappingByModel(entity.getClass());
 		Mapping m = mapping;
-		if (resourceAnnotation != null) {
-			m = resourceMapping.getMapping(resourceAnnotation.resource());
+		if (entityMapping != null) {
+			//m = resourceMapping.getMapping(resourceAnnotation.resource());
+			m = entityMapping;
 		}
 		
 		final ResourceObjectBuilder dataBuilder = JSONAPI.data(entity);

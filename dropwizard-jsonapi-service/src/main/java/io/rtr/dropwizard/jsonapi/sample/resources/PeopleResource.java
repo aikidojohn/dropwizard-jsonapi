@@ -1,6 +1,8 @@
 package io.rtr.dropwizard.jsonapi.sample.resources;
 
 import io.rtr.dropwizard.jsonapi.sample.core.DataStore;
+import io.rtr.dropwizard.jsonapi.sample.models.Person;
+import io.rtr.jsonapi.annotation.ApiResource;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -11,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+@ApiResource(model = Person.class)
 @Path("people")
 @Produces({"application/vnd.api+json", MediaType.APPLICATION_JSON})
 @Consumes({"application/vnd.api+json", MediaType.APPLICATION_JSON})

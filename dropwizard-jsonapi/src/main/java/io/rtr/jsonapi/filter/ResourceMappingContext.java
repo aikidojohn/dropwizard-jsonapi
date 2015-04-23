@@ -1,5 +1,7 @@
 package io.rtr.jsonapi.filter;
 
+import io.rtr.jsonapi.annotation.ApiResource;
+
 import java.lang.reflect.Type;
 import java.util.Deque;
 import java.util.HashMap;
@@ -29,6 +31,7 @@ public class ResourceMappingContext {
 	private ExtendedResourceContext erc;
 
     private Map<Class<?>, Mapping> mappings;
+    private Map<Class<?>, Mapping> mappingsByModel;
 
     public ResourceMappingContext(@Context ExtendedResourceContext erc) {
         this.erc = erc;
@@ -47,6 +50,11 @@ public class ResourceMappingContext {
     	}
         return mappings.get(resource);
     }
+    
+    public Mapping getMappingByModel(Class<?> model) {
+    	buildMappings();
+    	return mappingsByModel.get(model);
+    }
 
     private Class<?> getClassByName(String resourceName) {
     	try {
@@ -62,6 +70,7 @@ public class ResourceMappingContext {
             return;
         }
         mappings = new HashMap<>();
+        mappingsByModel = new HashMap<>();
 
         erc.getResourceModel().accept(new ResourceModelVisitor() {
 
@@ -162,6 +171,7 @@ public class ResourceMappingContext {
                 if (resourceMethod.isExtended()) {
                     return;
                 }
+                System.out.println("Method definition: " + resourceMethod.getInvocable().getDefinitionMethod());
 
                 if (ResourceMethod.JaxrsType.SUB_RESOURCE_LOCATOR.equals(resourceMethod.getType())) {
                     if (resourceMethod.getInvocable() != null) {
@@ -196,6 +206,11 @@ public class ResourceMappingContext {
             		mappings.put(type, mapping);
             	}
             	mapping.setRootPathTemplate(rootTemplate);
+            	
+            	Class modelClass = getModelClass(type);
+            	if (modelClass != null && !mappingsByModel.containsKey(modelClass)) {
+            		mappingsByModel.put(modelClass, mapping);
+            	}
             }
             
             private void addMappingPath(Class type, String template) {
@@ -205,6 +220,19 @@ public class ResourceMappingContext {
             		mappings.put(type, mapping);
             	}
             	mapping.addPathTemplate(template);
+            	
+            	Class modelClass = getModelClass(type);
+            	if (modelClass != null && !mappingsByModel.containsKey(modelClass)) {
+            		mappingsByModel.put(modelClass, mapping);
+            	}
+            }
+            
+            private Class getModelClass(Class<?> resourceClass) {
+            	ApiResource resource = resourceClass.getDeclaredAnnotation(ApiResource.class);
+            	if (resource == null) {
+            		return null;
+            	}
+            	return resource.model();
             }
             
             private String getTemplate() {
