@@ -2,6 +2,7 @@ package io.rtr.jsonapi.filter;
 
 import io.rtr.jsonapi.annotation.ApiResource;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Deque;
 import java.util.HashMap;
@@ -127,6 +128,11 @@ public class ResourceMappingContext {
             		Class root = getLikelyRoot(resource.getParent());
             		if (root != null) {
             			addMappingPath(root, resource.getPath());
+            			for (ResourceMethod method : resource.getAllMethods()) {
+            				if ("GET".equals(method.getHttpMethod())) {
+            					addMappingMethod(root, resource.getPath(), method.getInvocable().getDefinitionMethod());
+            				}
+            			}
             		}
             	}
                 visitResourceIntl(resource, false);
@@ -227,6 +233,20 @@ public class ResourceMappingContext {
             	}
             }
             
+            private void addMappingMethod(Class type, String template, Method method) {
+            	Mapping mapping = mappings.get(type);
+            	if (mapping == null) {
+            		mapping = new Mapping();
+            		mappings.put(type, mapping);
+            	}
+            	mapping.addPathMethod(template, method);
+            	
+            	Class modelClass = getModelClass(type);
+            	if (modelClass != null && !mappingsByModel.containsKey(modelClass)) {
+            		mappingsByModel.put(modelClass, mapping);
+            	}
+            }
+            
             private Class getModelClass(Class<?> resourceClass) {
             	ApiResource resource = resourceClass.getDeclaredAnnotation(ApiResource.class);
             	if (resource == null) {
@@ -271,6 +291,7 @@ public class ResourceMappingContext {
     public static class Mapping {
     	private String rootPath;
     	private final Map<String, String> paths = Maps.newHashMap();
+    	private final Map<String, Method> pathMethods = Maps.newHashMap();
     	
     	public Mapping() {
     	}
@@ -295,6 +316,10 @@ public class ResourceMappingContext {
     		return rootPath + seperator + path;
     	}
     	
+    	public Method getPathMethod(String key) {
+    		return pathMethods.get(key);
+    	}
+    	
     	public void addPathTemplate(String key, String path) {
     		paths.put(key, path);
     	}
@@ -306,6 +331,15 @@ public class ResourceMappingContext {
     			key = path.substring(path.lastIndexOf('/') + 1);
     		}
     		paths.put(key, path);
+    	}
+    	
+    	public void addPathMethod(String path, Method method) {
+    		String key = "self";
+    		int index = path.lastIndexOf('/');
+    		if (index > 0 && index < path.length() - 1) {
+    			key = path.substring(path.lastIndexOf('/') + 1);
+    		}
+    		pathMethods.put(key, method);
     	}
     	
     	public Iterable<String> getKeys() {

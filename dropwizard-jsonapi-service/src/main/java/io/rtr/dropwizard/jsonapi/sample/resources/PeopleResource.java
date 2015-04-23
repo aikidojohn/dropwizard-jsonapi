@@ -23,19 +23,19 @@ public class PeopleResource {
 	private DataStore store;
 
 	@GET
-	public Response getArticles() {
+	public Response getPeople() {
 		return Response.ok(store.getPeople()).build();
 	}
 	
 	@GET
 	@Path("{id}")
-	public Response getArticle(@PathParam("id") String id) {
+	public Response getPerson(@PathParam("id") String id) {
 		return Response.ok(store.getPerson(id)).build();
 	}
 	
 	@GET
 	@Path("{id}/articles")
-	public Response getAuthor(@PathParam("id") String id) {	    
+	public Response getArticles(@PathParam("id") String id) {	    
 		return Response.ok(store.getArticlesByAuthor(id)).build();
 	}
 }

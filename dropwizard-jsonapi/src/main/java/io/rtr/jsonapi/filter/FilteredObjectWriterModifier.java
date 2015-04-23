@@ -37,7 +37,7 @@ public class FilteredObjectWriterModifier extends ObjectWriterModifier {
 			System.out.println(fields);
 			if (fields != null && !fields.isEmpty()) {
 				Set<String> allFields = Sets.newHashSet(fields);
-				allFields.addAll(Sets.newHashSet("data", "type", "id", "links", "self"));
+				allFields.addAll(Sets.newHashSet("data", "type", "id", "links", "self", "included"));
 				FilterProvider filters = new SimpleFilterProvider()
 			      .addFilter("FieldFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allFields));  
 				return w.with(filters);
