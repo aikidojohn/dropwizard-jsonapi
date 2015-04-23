@@ -23,6 +23,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.uri.UriTemplate;
 
+import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterInjector;
 import com.google.common.collect.Lists;
 
 public class JsonApiResponseFilter implements ContainerResponseFilter {
@@ -41,6 +42,8 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			return;
 		}
 		System.out.println("HANDLING JSON API");
+		//Necessary for field filtering
+		ObjectWriterInjector.set(new FilteredObjectWriterModifier(uriInfo));
 		
 		final Object entity = responseContext.getEntity();
 		if (entity != null && !uriInfo.getMatchedResources().isEmpty()) {
@@ -82,8 +85,11 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		if (m != null) {
 			for (String key : m.getKeys()) {
 				UriTemplate template = new UriTemplate(m.getPathTemplate(key));
-				String uri = template.createURI(getId(entity));
-				dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
+				String id = getId(entity);
+				if (id != null) {
+					String uri = template.createURI(id);
+					dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
+				}
 			}
 		}
 		return dataBuilder.build();
