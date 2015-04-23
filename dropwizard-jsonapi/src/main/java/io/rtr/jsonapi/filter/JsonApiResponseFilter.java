@@ -3,7 +3,6 @@ package io.rtr.jsonapi.filter;
 import io.rtr.jsonapi.JSONAPI;
 import io.rtr.jsonapi.JSONAPI.ApiDocumentBuilder;
 import io.rtr.jsonapi.JSONAPI.ResourceObjectBuilder;
-import io.rtr.jsonapi.annotation.ResourceObject;
 import io.rtr.jsonapi.filter.ResourceMappingContext.Mapping;
 import io.rtr.jsonapi.impl.ResourceObjectImpl;
 
