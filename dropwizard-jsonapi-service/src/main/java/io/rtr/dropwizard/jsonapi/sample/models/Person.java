@@ -1,8 +1,11 @@
 package io.rtr.dropwizard.jsonapi.sample.models;
 
+import io.rtr.jsonapi.annotation.ApiModel;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+@ApiModel("people")
 @JsonInclude(Include.NON_NULL)
 public class Person {
 	private String id;

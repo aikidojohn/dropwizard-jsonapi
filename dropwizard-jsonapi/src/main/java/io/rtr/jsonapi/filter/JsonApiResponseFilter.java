@@ -44,7 +44,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		}
 		System.out.println("HANDLING JSON API");
 		//Necessary for field filtering
-		ObjectWriterInjector.set(new FilteredObjectWriterModifier(uriInfo));
+		ObjectWriterInjector.set(new FilteredObjectWriterModifier(uriInfo, resourceMapping));
 		
 		final Object entity = responseContext.getEntity();
 		if (entity != null && !uriInfo.getMatchedResources().isEmpty()) {
