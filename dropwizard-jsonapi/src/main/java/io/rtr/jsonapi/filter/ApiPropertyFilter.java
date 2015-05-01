@@ -38,15 +38,6 @@ public class ApiPropertyFilter implements PropertyFilter {
 		}
 	}
 	
-	public void addFilterValues(Class<?> type, Collection<String> fields) {
-		Set<String> f = filtered.get(type);
-		if (f == null) {
-			f = Sets.newHashSet();
-			filtered.put(type, f);
-		}
-		f.addAll(fields);
-	}
-	
 	@Override
 	public void serializeAsField(Object pojo, JsonGenerator jgen,
 			SerializerProvider prov, PropertyWriter writer) throws Exception {
@@ -83,7 +74,7 @@ public class ApiPropertyFilter implements PropertyFilter {
 	public void depositSchemaProperty(PropertyWriter writer,
 			ObjectNode propertiesNode, SerializerProvider provider)
 			throws JsonMappingException {
-		System.out.println(writer);
+		System.out.println("Deposit Schema:" + writer);
 		
 	}
 
@@ -91,7 +82,7 @@ public class ApiPropertyFilter implements PropertyFilter {
 	public void depositSchemaProperty(PropertyWriter writer,
 			JsonObjectFormatVisitor objectVisitor, SerializerProvider provider)
 			throws JsonMappingException {
-		System.out.println(writer);
+		System.out.println("Deposit Schema2:" + writer);
 		
 	}
 

@@ -2,6 +2,7 @@ package io.rtr.jsonapi.filter;
 
 import io.rtr.jsonapi.annotation.ApiResource;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Deque;
@@ -122,7 +123,7 @@ public class ResourceMappingContext {
             	System.out.println("Child Resource: " + resource.getPath());
             	System.out.println("Parent: " + resource.getParent());
             	System.out.println("Path: " + resource.getPath());
-            	System.out.println(resource.getPathPattern().getTemplate().getTemplateVariables());
+            	System.out.println("Template Var: " + resource.getPathPattern().getTemplate().getTemplateVariables());
             	UriTemplate template = resource.getPathPattern().getTemplate();
             	if (template.getNumberOfTemplateVariables() == 1) {
             		Class root = getLikelyRoot(resource.getParent());
@@ -318,6 +319,22 @@ public class ResourceMappingContext {
     	
     	public Method getPathMethod(String key) {
     		return pathMethods.get(key);
+    	}
+    	
+    	public Object getValue(Object resource, String key, Object... args) {
+    		final Method accessor = pathMethods.get(key);
+    		if (accessor == null) {
+    			return null;
+    		}
+    		
+    		try {
+				return accessor.invoke(resource, args);
+			} catch (IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException e) {
+				System.out.println("Failed to invoke resource method. " + e);
+			}
+    		
+    		return null;
     	}
     	
     	public void addPathTemplate(String key, String path) {

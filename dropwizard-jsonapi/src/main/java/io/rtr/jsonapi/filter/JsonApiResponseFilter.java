@@ -8,7 +8,6 @@ import io.rtr.jsonapi.impl.ResourceObjectImpl;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -19,9 +18,9 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.glassfish.jersey.message.internal.OutboundJaxrsResponse;
 import org.glassfish.jersey.uri.UriTemplate;
 
 import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterInjector;
@@ -61,13 +60,13 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			ApiDocumentBuilder<Object> docBuilder = null;
 			if (entity.getClass().isArray()) {
 				final Object[] entityArray = (Object[])entity;
-				final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(Arrays.stream(entityArray), requestResourceMapping);
+				final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(Arrays.stream(entityArray), requestResourceMapping,  resource, includeKeys, inculdeObjects);
 
 				docBuilder = JSONAPI.document(resourceObjects);
 			} 
 			else if (Collection.class.isAssignableFrom(entity.getClass())) {
 				final Collection<?> entityCollection = (Collection<?>)entity;
-				final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(entityCollection.stream(), requestResourceMapping);
+				final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(entityCollection.stream(), requestResourceMapping,  resource, includeKeys, inculdeObjects);
 			
 				docBuilder = JSONAPI.document(resourceObjects);
 			} 
@@ -78,7 +77,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			
 			docBuilder.link("self", uriInfo.getRequestUri().toString());
 			for (Object inc : inculdeObjects) {
-				docBuilder.include(buildEntity(requestResourceMapping, inc));
+				docBuilder.include(buildEntity(requestResourceMapping, inc,  resource, includeKeys, inculdeObjects));
 			}
 			responseContext.setEntity(docBuilder.build(uriInfo));
 		}
@@ -110,10 +109,10 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 	
 	private List<Object> resolveIncludes(Object resource, Object entity, String id, String key, Mapping m) {
 		List<Object> includes = Lists.newArrayList();
-		try {
-			Object included = m.getPathMethod(key).invoke(resource, id);
-			if (included instanceof OutboundJaxrsResponse) {
-				included = ((OutboundJaxrsResponse)included).getEntity();
+	    Object included = m.getValue(resource, key, id);
+	    if (included != null) {
+		    if (included instanceof Response) { // OutboundJaxrsResponse
+				included = ((Response)included).getEntity();
 			} 
 			System.out.println("Possible Include: " + key + " - " + included);
 			
@@ -127,39 +126,14 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 				includes.add(included);
 			}
 			
-		} catch (IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return includes;
 	}
 	
-	private ResourceObjectImpl buildEntity(final Mapping mapping, final Object entity) {
-		final Mapping entityMapping = resourceMapping.getMappingByModel(entity.getClass());
-		Mapping m = mapping;
-		if (entityMapping != null) {
-			m = entityMapping;
-		}
-		
-		final ResourceObjectBuilder dataBuilder = JSONAPI.data(entity);
-		if (m != null) {
-			for (String key : m.getKeys()) {
-				UriTemplate template = new UriTemplate(m.getPathTemplate(key));
-				String id = getId(entity);
-				if (id != null) {
-					String uri = template.createURI(id);
-					dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
-				}
-			}
-		}
-		return dataBuilder.build();
-	}
-	
-	private List<ResourceObjectImpl<Object>> buildEntityList(Stream<?> source, Mapping requestResourceMapping) {
+	private List<ResourceObjectImpl<Object>> buildEntityList(Stream<?> source, Mapping requestResourceMapping, final Object resource, Collection<String> includeKeys, List<Object> includes) {
 		final List<ResourceObjectImpl<Object>> resourceObjects = Lists.newArrayList();
 		source.forEach(obj -> {
-			resourceObjects.add(buildEntity(requestResourceMapping, obj));
+			resourceObjects.add(buildEntity(requestResourceMapping, obj, resource, includeKeys, includes));
 		});
 		return resourceObjects;
 	}

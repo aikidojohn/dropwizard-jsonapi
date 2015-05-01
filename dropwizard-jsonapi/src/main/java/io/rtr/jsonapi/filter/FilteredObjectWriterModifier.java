@@ -58,16 +58,17 @@ public class FilteredObjectWriterModifier extends ObjectWriterModifier {
 			MultivaluedMap<String, Object> responseHeaders,
 			Object valueToWrite, ObjectWriter w, JsonGenerator g)
 			throws IOException {
-		Class<?> mixinClass = w.getConfig().findMixInClassFor(Object.class);
-		System.out.println(mixinClass);
+		Class<?> mixinClass = w.getConfig().findMixInClassFor(valueToWrite.getClass());
+		System.out.println("Found Mixin: " + mixinClass);
 		if (uriInfo != null) {
 			System.out.println ("!!!!MODIFIED!!!!!!");
 			
 			Map<String, Set<String>> modelFilters = getFieldFilters();
-			System.out.println(modelFilters);
+			System.out.println("Parsed Filters: " + modelFilters);
 			if (modelFilters != null && !modelFilters.isEmpty()) {
 				//Set<String> allFields = Sets.newHashSet(fields);
 				//allFields.addAll(Sets.newHashSet("data", "type", "id", "links", "self", "included"));
+				System.out.println("Adding Field Filter");
 				FilterProvider filters = new SimpleFilterProvider()
 			      .addFilter("FieldFilter", new ApiPropertyFilter(mapping, modelFilters));
 				  //.addFilter("FieldFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allFields));

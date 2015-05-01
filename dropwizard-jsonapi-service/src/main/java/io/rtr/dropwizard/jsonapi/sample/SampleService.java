@@ -8,9 +8,7 @@ import io.rtr.dropwizard.jsonapi.sample.health.SampleHealthCheck;
 import io.rtr.dropwizard.jsonapi.sample.resources.ArticlesResource;
 import io.rtr.dropwizard.jsonapi.sample.resources.PeopleResource;
 import io.rtr.dropwizard.jsonapi.sample.resources.SampleResource;
-import io.rtr.jsonapi.annotation.FieldFilterMixIn;
-import io.rtr.jsonapi.filter.JsonApiFeature;
-import io.rtr.jsonapi.filter.JsonApiMessageBodyWriter;
+import io.rtr.jsonapi.bundle.ApiBundle;
 
 public class SampleService extends Application<SampleConfiguration> {
 
@@ -24,19 +22,12 @@ public class SampleService extends Application<SampleConfiguration> {
 	@Override
 	public void initialize(Bootstrap<SampleConfiguration> bootstrap) {
 		bootstrap.addBundle(new AssetsBundle("/assets/", "/"));
-		//bootstrap.getObjectMapper().addMixInAnnotations(Object.class, FieldFilterMixIn.class);
+		bootstrap.addBundle(new ApiBundle());
 	}
 
 	@Override
 	public void run(SampleConfiguration configuration, Environment environment) throws Exception {
-		environment.jersey().packages("io.rtr.jsonapi.filter");
-		environment.jersey().register(JsonApiFeature.class);
-		environment.jersey().register(JsonApiMessageBodyWriter.class);
-		
 		environment.jersey().register(new SampleModule(configuration, environment));
-		
-		
-		//environment.jersey().register(FilterableObjectMapper.class);
 		
 		for (Class<?> c : MANAGED) {
 			environment.jersey().register(c);
