@@ -18,6 +18,7 @@ public class ApiBundle implements Bundle {
 	public void run(Environment environment) {
 		environment.jersey().packages("io.rtr.jsonapi.filter");
 		environment.jersey().register(JsonApiFeature.class);
+		//Is this even necessary? It only adds the mixin that's added above.
 		environment.jersey().register(JsonApiMessageBodyWriter.class);
 	}
 
