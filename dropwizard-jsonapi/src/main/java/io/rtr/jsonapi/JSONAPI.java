@@ -1,5 +1,6 @@
 package io.rtr.jsonapi;
 
+import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.impl.ApiDocumentImpl;
 import io.rtr.jsonapi.impl.ResourceObjectImpl;
 
@@ -229,6 +230,8 @@ public class JSONAPI {
 		public ResourceObjectImpl<D> build() {
 			ResourceObjectImpl<D> doc = new ResourceObjectImpl<D>();
 			doc.setData(data);
+			doc.setType(getType(data));
+			
 			if (!includes.isEmpty()) {
 				doc.setIncluded(includes);
 			}
@@ -239,6 +242,21 @@ public class JSONAPI {
 				doc.setMeta(meta);
 			}
 			return doc;
+		}
+		
+		private String getType(D data) {
+			ApiModel model = data.getClass().getAnnotation(ApiModel.class);
+			if (model != null) {
+				String type = model.value();
+				if ("undefined".equals(type)) {
+					type = model.type();
+				}
+				if ("undefined".equals(type)) {
+					return null;
+				}
+				return type;
+			}
+			return null;
 		}
 	}
 }

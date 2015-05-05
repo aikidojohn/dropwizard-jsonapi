@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class Article {
 	private String id;
-	private String type = "articles";
 	private String title;
 	private String body;
 	
@@ -17,16 +16,8 @@ public class Article {
 		return id;
 	}
 
-	public String getType() {
-		return type;
-	}
-
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 
 	public String getTitle() {

@@ -5,20 +5,15 @@ import io.rtr.jsonapi.annotation.ApiModel;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@ApiModel("people")
+@ApiModel(type = "people", id = "id")
 @JsonInclude(Include.NON_NULL)
 public class Person {
 	private String id;
-	private String type = "people";
 	private String name;
 	private String company;
 	
 	public String getId() {
 		return id;
-	}
-
-	public String getType() {
-		return type;
 	}
 
 	public String getName() {
@@ -39,9 +34,5 @@ public class Person {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 }

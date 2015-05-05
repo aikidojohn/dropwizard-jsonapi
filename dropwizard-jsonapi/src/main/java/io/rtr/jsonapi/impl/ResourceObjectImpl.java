@@ -11,11 +11,18 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 public class ResourceObjectImpl<T> {
 	@JsonUnwrapped
 	private T data;
+	private String type;
 	
 	private Object meta;
 	private List<Object> included;
 	private Map<String, Object> links;
 	
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
 	public T getData() {
 		return data;
 	}
