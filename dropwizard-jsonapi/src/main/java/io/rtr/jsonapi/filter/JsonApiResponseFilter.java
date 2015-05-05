@@ -40,13 +40,14 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 	
 	@Override
 	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
+		//Necessary for field filtering
+		ObjectWriterInjector.set(new FilteredObjectWriterModifier(uriInfo, resourceMapping));
+				
 		if (!isApplicable(requestContext)) {
 			System.out.println("JSON API not requested");
 			return;
 		}
 		System.out.println("HANDLING JSON API");
-		//Necessary for field filtering
-		ObjectWriterInjector.set(new FilteredObjectWriterModifier(uriInfo, resourceMapping));
 		
 		final Object entity = responseContext.getEntity();
 		if (entity != null && !uriInfo.getMatchedResources().isEmpty()) {

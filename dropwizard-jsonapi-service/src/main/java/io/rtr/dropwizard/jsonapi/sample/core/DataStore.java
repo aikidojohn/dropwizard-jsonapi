@@ -18,9 +18,11 @@ public class DataStore {
 	public DataStore() {
 		addArticle("1", "My Amazing Article about JSON API", "Lorem ipsum dolor sit amet.");
 		addArticle("2", "I, Fashionator", "Lorem ipsum dolor sit amet.");
+		addArticle("3", "Dropwizard Awsomeness", "Lorem ipsum dolor sit amet.");
 		addPerson("2", "John Hite", "Rent the Runway");
 		addPerson("4", "Eric Weinstein", "Rent the Runway");
 		addAuthor("2", "1");
+		addAuthor("2", "3");
 		addAuthor("4", "2");
 	}
 	
