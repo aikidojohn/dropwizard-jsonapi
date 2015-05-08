@@ -39,7 +39,7 @@ public class SampleResource {
 		Article article = sampleArticle();
 		Person author = sampleAuthor();
 
-		JsonLink<Void> authorLink = new JsonLink<Void>(uriInfo.getAbsolutePath().toString() + "/1/links/author", 
+		JsonLink authorLink = new JsonLink(uriInfo.getAbsolutePath().toString() + "/1/links/author", 
 				uriInfo.getAbsolutePath().toString() + "/1/author", 
 				Lists.newArrayList(new Linkage("people", "2")));
 

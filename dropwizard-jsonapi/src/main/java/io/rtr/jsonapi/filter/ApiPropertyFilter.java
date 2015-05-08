@@ -59,7 +59,11 @@ public class ApiPropertyFilter implements PropertyFilter {
 	private String getModelType(Class<?> type) {
 		ApiModel model = type.getDeclaredAnnotation(ApiModel.class);
 		if (model != null) {
-			return model.value();
+			String modelType = model.type();
+			if ("undefined".equals(modelType)) {
+				modelType = model.value();
+			}
+			return modelType;
 		}
 		return null;
 	}

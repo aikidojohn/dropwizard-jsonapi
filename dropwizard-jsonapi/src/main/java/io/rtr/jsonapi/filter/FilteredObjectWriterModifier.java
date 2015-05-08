@@ -3,8 +3,6 @@ package io.rtr.jsonapi.filter;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,7 +16,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.jaxrs.cfg.EndpointConfigBase;
 import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterModifier;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -33,21 +30,19 @@ public class FilteredObjectWriterModifier extends ObjectWriterModifier {
 	}
 	
 	private Map<String, Set<String>> getFieldFilters() {
-		Map<String, Set<String>> filters = Maps.newHashMap();
+		final Map<String, Set<String>> filters = Maps.newHashMap();
 		for (String param : uriInfo.getQueryParameters().keySet()) {
 			if (param.startsWith("fields")) {
-				int start = param.indexOf('[');
-				int end = param.indexOf(']');
-				String modelType = param.substring(start+1, end);
-				System.out.println("model: " + modelType);
+				final int start = param.indexOf('[');
+				final int end = param.indexOf(']');
+				final String modelType = param.substring(start+1, end);
 				Set<String> fieldFilters = filters.get(modelType);
 				if (fieldFilters == null) {
 					fieldFilters = Sets.newHashSet();
 					filters.put(modelType, fieldFilters);
 				}
 				for (String field : uriInfo.getQueryParameters().get(param)) {
-					String[] modelFields = field.split(",");
-					System.out.println("model fields: " + Arrays.toString(modelFields));
+					final String[] modelFields = field.split(",");
 					fieldFilters.addAll(Sets.newHashSet(modelFields));
 				}
 			}
@@ -60,26 +55,22 @@ public class FilteredObjectWriterModifier extends ObjectWriterModifier {
 			MultivaluedMap<String, Object> responseHeaders,
 			Object valueToWrite, ObjectWriter w, JsonGenerator g)
 			throws IOException {
-		Class<?> mixinClass = w.getConfig().findMixInClassFor(valueToWrite.getClass());
-		System.out.println("Found Mixin: " + mixinClass);
+		//Class<?> mixinClass = w.getConfig().findMixInClassFor(valueToWrite.getClass());
+		//System.out.println("Found Mixin: " + mixinClass);
+		
+		FilterProvider filters = null;
 		if (uriInfo != null) {
-			System.out.println ("!!!!MODIFIED!!!!!!");
-			
-			Map<String, Set<String>> modelFilters = getFieldFilters();
+			final Map<String, Set<String>> modelFilters = getFieldFilters();
 			System.out.println("Parsed Filters: " + modelFilters);
 			if (modelFilters != null && !modelFilters.isEmpty()) {
-				//Set<String> allFields = Sets.newHashSet(fields);
-				//allFields.addAll(Sets.newHashSet("data", "type", "id", "links", "self", "included"));
-				System.out.println("Adding Field Filter");
-				FilterProvider filters = new SimpleFilterProvider()
-			      .addFilter("FieldFilter", new ApiPropertyFilter(mapping, modelFilters));
-				  //.addFilter("FieldFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allFields));
-				return w.with(filters);
+				filters = new SimpleFilterProvider().addFilter("FieldFilter", new ApiPropertyFilter(mapping, modelFilters));
 			}
 		}
-		
-		FilterProvider filters = new SimpleFilterProvider()
-	      .addFilter("FieldFilter", SimpleBeanPropertyFilter.serializeAllExcept(new String[]{}));  
+		//If there were no filtes - make sure we add a no-op field filter so Jackson doesn't complain
+		if (filters == null) {
+			filters = new SimpleFilterProvider().addFilter("FieldFilter", SimpleBeanPropertyFilter.serializeAllExcept(new String[]{}));  
+		}
+
 		return w.with(filters);
 	}
 	

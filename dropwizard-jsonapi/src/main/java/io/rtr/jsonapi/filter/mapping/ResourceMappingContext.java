@@ -16,14 +16,11 @@ import javax.ws.rs.core.Context;
 import org.glassfish.jersey.process.Inflector;
 import org.glassfish.jersey.server.ExtendedResourceContext;
 import org.glassfish.jersey.server.model.AbstractResourceModelVisitor;
-import org.glassfish.jersey.server.model.HandlerConstructor;
 import org.glassfish.jersey.server.model.Invocable;
-import org.glassfish.jersey.server.model.MethodHandler;
 import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.server.model.ResourceMethod;
 import org.glassfish.jersey.server.model.ResourceModel;
 import org.glassfish.jersey.server.model.ResourceModelComponent;
-import org.glassfish.jersey.server.model.RuntimeResource;
 import org.glassfish.jersey.uri.PathPattern;
 import org.glassfish.jersey.uri.UriTemplate;
 
@@ -111,6 +108,11 @@ public class ResourceMappingContext {
                 visitResourceIntl(resource, true);
             }
 
+            /*
+             * Called for every child of a top level resoource. These are the actual resource paths in the root level resource.
+             * (non-Javadoc)
+             * @see org.glassfish.jersey.server.model.AbstractResourceModelVisitor#visitChildResource(org.glassfish.jersey.server.model.Resource)
+             */
             @Override
             public void visitChildResource(Resource resource) {
             	System.out.println("Child Resource: " + resource.getPath());
@@ -131,34 +133,13 @@ public class ResourceMappingContext {
             	}
                 visitResourceIntl(resource, false);
             }
-
-            private Class getLikelyRoot(Resource resource) {
-            	Class likelyToBeRoot = null;
-                for (Class next : resource.getHandlerClasses()) {
-                    if (!(Inflector.class.isAssignableFrom(next))) {
-                        likelyToBeRoot = next;
-                    }
-                }
-                return likelyToBeRoot;
-            }
             
-            private void visitResourceIntl(Resource resource, boolean isRoot) {
-                try {
-                    stack.addLast(resource.getPathPattern());
-                    processComponents(resource);
-
-                    if (isRoot) {
-                        Class likelyToBeRoot = getLikelyRoot(resource);
-
-                        if (likelyToBeRoot != null) {
-                        	addMappingRoot(likelyToBeRoot, getTemplate());
-                        }
-                    }
-                } finally {
-                    stack.removeLast();
-                }
-            }
-
+            /* 
+             * Called for each method in a resource. Includes the actual method that will be called to handle a request.
+             * 
+             * (non-Javadoc)
+             * @see org.glassfish.jersey.server.model.AbstractResourceModelVisitor#visitResourceMethod(org.glassfish.jersey.server.model.ResourceMethod)
+             */
             @Override
             public void visitResourceMethod(ResourceMethod resourceMethod) {
             	System.out.println("Resource Method: " + resourceMethod);
@@ -191,6 +172,33 @@ public class ResourceMappingContext {
                 }
 
                 processComponents(resourceMethod);
+            }
+
+            private Class getLikelyRoot(Resource resource) {
+            	Class likelyToBeRoot = null;
+                for (Class next : resource.getHandlerClasses()) {
+                    if (!(Inflector.class.isAssignableFrom(next))) {
+                        likelyToBeRoot = next;
+                    }
+                }
+                return likelyToBeRoot;
+            }
+            
+            private void visitResourceIntl(Resource resource, boolean isRoot) {
+                try {
+                    stack.addLast(resource.getPathPattern());
+                    processComponents(resource);
+
+                    if (isRoot) {
+                        Class likelyToBeRoot = getLikelyRoot(resource);
+
+                        if (likelyToBeRoot != null) {
+                        	addMappingRoot(likelyToBeRoot, getTemplate());
+                        }
+                    }
+                } finally {
+                    stack.removeLast();
+                }
             }
 
             private void addMappingRoot(Class type, String rootTemplate) {
