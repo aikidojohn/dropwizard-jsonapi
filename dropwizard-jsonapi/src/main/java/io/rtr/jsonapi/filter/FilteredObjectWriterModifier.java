@@ -1,5 +1,7 @@
 package io.rtr.jsonapi.filter;
 
+import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;

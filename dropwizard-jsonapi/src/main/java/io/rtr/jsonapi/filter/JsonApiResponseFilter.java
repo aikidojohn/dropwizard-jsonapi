@@ -6,7 +6,8 @@ import io.rtr.jsonapi.JSONAPI.ResourceObjectBuilder;
 import io.rtr.jsonapi.JsonLink;
 import io.rtr.jsonapi.Linkage;
 import io.rtr.jsonapi.annotation.ApiModel;
-import io.rtr.jsonapi.filter.ResourceMappingContext.Mapping;
+import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
+import io.rtr.jsonapi.filter.mapping.ResourceMappingContext.Mapping;
 import io.rtr.jsonapi.impl.ResourceObjectImpl;
 
 import java.io.IOException;
@@ -195,7 +196,11 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 	private String getModelType(Class<?> type) {
 		ApiModel model = type.getDeclaredAnnotation(ApiModel.class);
 		if (model != null) {
-			return model.value();
+			String modelType = model.type();
+			if ("undefined".equals(modelType)) {
+				modelType = model.value();
+			}
+			return modelType;
 		}
 		return null;
 	}

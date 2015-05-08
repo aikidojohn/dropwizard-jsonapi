@@ -1,5 +1,7 @@
 package io.rtr.jsonapi.filter;
 
+import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
+
 import javax.inject.Singleton;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Feature;

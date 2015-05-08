@@ -1,4 +1,4 @@
-package io.rtr.jsonapi.filter;
+package io.rtr.jsonapi.filter.mapping;
 
 import io.rtr.jsonapi.annotation.ApiResource;
 
@@ -15,6 +15,7 @@ import javax.ws.rs.core.Context;
 
 import org.glassfish.jersey.process.Inflector;
 import org.glassfish.jersey.server.ExtendedResourceContext;
+import org.glassfish.jersey.server.model.AbstractResourceModelVisitor;
 import org.glassfish.jersey.server.model.HandlerConstructor;
 import org.glassfish.jersey.server.model.Invocable;
 import org.glassfish.jersey.server.model.MethodHandler;
@@ -22,7 +23,6 @@ import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.server.model.ResourceMethod;
 import org.glassfish.jersey.server.model.ResourceModel;
 import org.glassfish.jersey.server.model.ResourceModelComponent;
-import org.glassfish.jersey.server.model.ResourceModelVisitor;
 import org.glassfish.jersey.server.model.RuntimeResource;
 import org.glassfish.jersey.uri.PathPattern;
 import org.glassfish.jersey.uri.UriTemplate;
@@ -74,7 +74,7 @@ public class ResourceMappingContext {
         mappings = new HashMap<>();
         mappingsByModel = new HashMap<>();
 
-        erc.getResourceModel().accept(new ResourceModelVisitor() {
+        erc.getResourceModel().accept(new AbstractResourceModelVisitor() {
 
             Deque<PathPattern> stack = new LinkedList<>();
 
@@ -88,34 +88,27 @@ public class ResourceMappingContext {
                 }
             }
 
-            @Override
-            public void visitInvocable(Invocable invocable) {
-//            	System.out.println(invocable);
-                processComponents(invocable);
-            }
-
-            @Override
-            public void visitRuntimeResource(RuntimeResource runtimeResource) {
-//            	System.out.println(runtimeResource);
-                processComponents(runtimeResource);
-            }
-
+            /*
+             * This is the entire resource model for the application. Contains the collection of root resources
+             * (non-Javadoc)
+             * @see org.glassfish.jersey.server.model.AbstractResourceModelVisitor#visitResourceModel(org.glassfish.jersey.server.model.ResourceModel)
+             */
             @Override
             public void visitResourceModel(ResourceModel resourceModel) {
-//            	System.out.println(resourceModel);
+            	System.out.println("Resource Model: " + resourceModel);
+            	
                 processComponents(resourceModel);
             }
-
+            
+            /*
+             * Gets called for every root resource
+             * (non-Javadoc)
+             * @see org.glassfish.jersey.server.model.AbstractResourceModelVisitor#visitResource(org.glassfish.jersey.server.model.Resource)
+             */
             @Override
-            public void visitResourceHandlerConstructor(HandlerConstructor handlerConstructor) {
-//            	System.out.println(handlerConstructor);
-                processComponents(handlerConstructor);
-            }
-
-            @Override
-            public void visitMethodHandler(MethodHandler methodHandler) {
-//            	System.out.println(methodHandler);
-                processComponents(methodHandler);
+            public void visitResource(Resource resource) {
+            	System.out.println("Resource: " + resource.getPath());
+                visitResourceIntl(resource, true);
             }
 
             @Override
@@ -137,12 +130,6 @@ public class ResourceMappingContext {
             		}
             	}
                 visitResourceIntl(resource, false);
-            }
-
-            @Override
-            public void visitResource(Resource resource) {
-            	System.out.println("Resource: " + resource.getPath());
-                visitResourceIntl(resource, true);
             }
 
             private Class getLikelyRoot(Resource resource) {

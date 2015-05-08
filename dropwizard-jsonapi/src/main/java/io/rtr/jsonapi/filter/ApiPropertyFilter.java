@@ -1,6 +1,7 @@
 package io.rtr.jsonapi.filter;
 
 import io.rtr.jsonapi.annotation.ApiModel;
+import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
 
 import java.util.Collection;
 import java.util.Map;
