@@ -23,10 +23,13 @@ import org.glassfish.jersey.server.model.ResourceModel;
 import org.glassfish.jersey.server.model.ResourceModelComponent;
 import org.glassfish.jersey.uri.PathPattern;
 import org.glassfish.jersey.uri.UriTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
 public class ResourceMappingContext {
+	private static final Logger log = LoggerFactory.getLogger(ResourceMappingContext.class);
 	private ExtendedResourceContext erc;
 
     private Map<Class<?>, Mapping> mappings;
@@ -59,7 +62,7 @@ public class ResourceMappingContext {
     	try {
 			return Class.forName(resourceName);
 		} catch (ClassNotFoundException e) {
-			System.out.println("Couldn't find resource class " + resourceName);
+			log.warn("Couldn't find resource class {}", resourceName);
 			return null;
 		}
     }
@@ -92,8 +95,7 @@ public class ResourceMappingContext {
              */
             @Override
             public void visitResourceModel(ResourceModel resourceModel) {
-            	System.out.println("Resource Model: " + resourceModel);
-            	
+            	log.trace("Resource Model: {}", resourceModel);
                 processComponents(resourceModel);
             }
             
@@ -104,7 +106,7 @@ public class ResourceMappingContext {
              */
             @Override
             public void visitResource(Resource resource) {
-            	System.out.println("Resource: " + resource.getPath());
+            	log.trace("Resource: {}", resource.getPath());
                 visitResourceIntl(resource, true);
             }
 
@@ -115,10 +117,10 @@ public class ResourceMappingContext {
              */
             @Override
             public void visitChildResource(Resource resource) {
-            	System.out.println("Child Resource: " + resource.getPath());
-            	System.out.println("Parent: " + resource.getParent());
-            	System.out.println("Path: " + resource.getPath());
-            	System.out.println("Template Var: " + resource.getPathPattern().getTemplate().getTemplateVariables());
+            	log.debug("Child Resource: {}", resource.getPath());
+            	log.debug("Parent: {}", resource.getParent());
+            	log.debug("Path: {}", resource.getPath());
+            	log.debug("Template Var: {}", resource.getPathPattern().getTemplate().getTemplateVariables());
             	UriTemplate template = resource.getPathPattern().getTemplate();
             	if (template.getNumberOfTemplateVariables() == 1) {
             		Class root = getLikelyRoot(resource.getParent());
@@ -142,11 +144,11 @@ public class ResourceMappingContext {
              */
             @Override
             public void visitResourceMethod(ResourceMethod resourceMethod) {
-            	System.out.println("Resource Method: " + resourceMethod);
+            	log.trace("Resource Method: {}", resourceMethod);
                 if (resourceMethod.isExtended()) {
                     return;
                 }
-                System.out.println("Method definition: " + resourceMethod.getInvocable().getDefinitionMethod());
+                log.debug("Method definition: {}", resourceMethod.getInvocable().getDefinitionMethod());
 
                 if (ResourceMethod.JaxrsType.SUB_RESOURCE_LOCATOR.equals(resourceMethod.getType())) {
                     if (resourceMethod.getInvocable() != null) {
@@ -326,7 +328,7 @@ public class ResourceMappingContext {
 				return accessor.invoke(resource, args);
 			} catch (IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException e) {
-				System.out.println("Failed to invoke resource method. " + e);
+				log.warn("Failed to invoke resource method.", e);
 			}
     		
     		return null;

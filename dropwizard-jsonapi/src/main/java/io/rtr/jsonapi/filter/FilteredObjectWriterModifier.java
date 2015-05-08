@@ -9,6 +9,9 @@ import java.util.Set;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -20,7 +23,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class FilteredObjectWriterModifier extends ObjectWriterModifier {
-
+	private static final Logger log = LoggerFactory.getLogger(FilteredObjectWriterModifier.class);
 	private UriInfo uriInfo;
 	private ResourceMappingContext mapping;
 	
@@ -61,7 +64,7 @@ public class FilteredObjectWriterModifier extends ObjectWriterModifier {
 		FilterProvider filters = null;
 		if (uriInfo != null) {
 			final Map<String, Set<String>> modelFilters = getFieldFilters();
-			System.out.println("Parsed Filters: " + modelFilters);
+			log.debug("Parsed Filters: {}", modelFilters);
 			if (modelFilters != null && !modelFilters.isEmpty()) {
 				filters = new SimpleFilterProvider().addFilter("FieldFilter", new ApiPropertyFilter(mapping, modelFilters));
 			}

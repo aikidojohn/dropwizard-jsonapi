@@ -3,9 +3,11 @@ package io.rtr.jsonapi.filter;
 import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -17,10 +19,10 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class ApiPropertyFilter implements PropertyFilter {
-
+	private static final Logger log = LoggerFactory.getLogger(ApiPropertyFilter.class);
+	
 	private Map<Class<?>, Set<String>> filtered = Maps.newHashMap();
 	private Map<String, Set<String>> filtersByModelType = Maps.newHashMap();
 	
@@ -49,7 +51,7 @@ public class ApiPropertyFilter implements PropertyFilter {
 			final String modelType = getModelType(declaringClass);
 			final Set<String> filteredFields = filtersByModelType.get(modelType);
 			if (filteredFields != null && !filteredFields.contains(w.getName())) {
-				System.out.println("filtered " + modelType + "." + w.getName());
+				log.debug("filtered {}.{}", modelType, w.getName());
 				return;
 			}
 		}
@@ -71,7 +73,6 @@ public class ApiPropertyFilter implements PropertyFilter {
 	@Override
 	public void serializeAsElement(Object elementValue, JsonGenerator jgen,
 			SerializerProvider prov, PropertyWriter writer) throws Exception {
-		System.out.println("Element: " + writer.getFullName().toString());
 		writer.serializeAsElement(elementValue, jgen, prov);	
 	}
 
@@ -79,16 +80,12 @@ public class ApiPropertyFilter implements PropertyFilter {
 	public void depositSchemaProperty(PropertyWriter writer,
 			ObjectNode propertiesNode, SerializerProvider provider)
 			throws JsonMappingException {
-		System.out.println("Deposit Schema:" + writer);
-		
 	}
 
 	@Override
 	public void depositSchemaProperty(PropertyWriter writer,
 			JsonObjectFormatVisitor objectVisitor, SerializerProvider provider)
 			throws JsonMappingException {
-		System.out.println("Deposit Schema2:" + writer);
-		
 	}
 
 }

@@ -13,7 +13,7 @@ server:
 logging:
   level: INFO
   loggers:
-    io.rtr: DEBUG
+    io.rtr: TRACE
   appenders:
     - type: console
       threshold: ALL

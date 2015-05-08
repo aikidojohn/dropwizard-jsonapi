@@ -8,6 +8,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
@@ -20,6 +23,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 @Provider
 @Produces("application/vnd.api+json")
 public class JsonApiMessageBodyWriter extends JacksonJsonProvider {
+	private static final Logger log = LoggerFactory.getLogger(JsonApiMessageBodyWriter.class);
 	private static final MediaType JSONAPI_MEDIATYPE = MediaType.valueOf("application/vnd.api+json");
 	
 	@Context
@@ -29,7 +33,7 @@ public class JsonApiMessageBodyWriter extends JacksonJsonProvider {
 	public ObjectMapper locateMapper(Class<?> type, MediaType mediaType) {
 		final ObjectMapper mapper = super.locateMapper(type, mediaType);
 		//Necessary for field filtering
-		System.out.println("Adding field filter mixin");
+		log.debug("Adding field filter mixin");
 		mapper.addMixInAnnotations(Object.class, FieldFilterMixIn.class);
 		return mapper;
 	}

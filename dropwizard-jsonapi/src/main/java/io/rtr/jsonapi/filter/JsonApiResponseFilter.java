@@ -26,11 +26,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.uri.UriTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterInjector;
 import com.google.common.collect.Lists;
 
 public class JsonApiResponseFilter implements ContainerResponseFilter {
+	private static final Logger log = LoggerFactory.getLogger(JsonApiResponseFilter.class);
 	public static final MediaType JSONAPI_MEDIATYPE = MediaType.valueOf("application/vnd.api+json");
 	
 	@Context
@@ -45,10 +48,10 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		ObjectWriterInjector.set(new FilteredObjectWriterModifier(uriInfo, resourceMapping));
 				
 		if (!isApplicable(requestContext)) {
-			System.out.println("JSON API not requested");
+			log.trace("JSON API not requested");
 			return;
 		}
-		System.out.println("HANDLING JSON API");
+		log.trace("HANDLING JSON API");
 		
 		final Object entity = responseContext.getEntity();
 		if (entity != null && !uriInfo.getMatchedResources().isEmpty()) {
@@ -153,7 +156,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		    if (included instanceof Response) { // OutboundJaxrsResponse
 				included = ((Response)included).getEntity();
 			} 
-			System.out.println("Possible Include: " + key + " - " + included);
+			log.debug("Possible Include: {} - {}", key, included);
 			
 			if (included.getClass().isArray()) {
 				includes.addAll(Lists.newArrayList((Object[])included));
