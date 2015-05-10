@@ -61,9 +61,10 @@ public class DataStore {
 		articleAuthors.put(articleId, getPerson(personId));
 	}
 	
-	private void addPerson(String id ,String name, String company) {
+	public Person addPerson(String id ,String name, String company) {
 		Person p = createPerson(id, name, company);
 		people.put(id, p);
+		return p;
 	}
 	
 	private void addArticle(String id, String title, String body) {
