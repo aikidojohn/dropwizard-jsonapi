@@ -182,7 +182,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 	
 	private String getId(Object obj) {
 		try {
-			Field field = obj.getClass().getDeclaredField("id");
+			Field field = findDeclaredField(obj, "id");
 			field.setAccessible(true);
 			Object id = field.get(obj);
 			if (id instanceof String) {
@@ -195,7 +195,35 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		}
 		return null;
 	}
-	
+
+	private Field findDeclaredField(Object obj, String fieldName) throws NoSuchFieldException {
+		List<Field> fields = Lists.newArrayList();
+		getAllFields(fields, obj.getClass());
+		for(Field field : fields) {
+			if(field.getName().equals(fieldName)) {
+				return field;
+			}
+		}
+		throw new NoSuchFieldException("No Field found for fieldName=" + fieldName + ", Obj=" + obj.getClass().getCanonicalName());
+	}
+
+	/**
+	 * A recursive method to find all the fields (including fields of the class's parents) of a class
+	 *
+	 * @param fields A container for Field objects, which is used by the recursion
+	 * @param type The class that the recursion starts with
+	 * @return a list of fields from the given class and all of its parents
+	 */
+	private List<Field> getAllFields(List<Field> fields, Class<?> type) {
+		fields.addAll(Arrays.asList(type.getDeclaredFields()));
+
+		if (type.getSuperclass() != null) {
+			fields = getAllFields(fields, type.getSuperclass());
+		}
+
+		return fields;
+	}
+
 	private String getModelType(Class<?> type) {
 		ApiModel model = type.getDeclaredAnnotation(ApiModel.class);
 		if (model != null) {
