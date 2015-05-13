@@ -1,6 +1,5 @@
 package io.rtr.jsonapi.filter;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.rtr.jsonapi.JSONAPI;
 import io.rtr.jsonapi.JSONAPI.ApiDocumentBuilder;
 import io.rtr.jsonapi.JSONAPI.ResourceObjectBuilder;
@@ -217,8 +216,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 				.anyMatch(m -> JSONAPI_MEDIATYPE.equals(m));
 	}
 
-	@VisibleForTesting
-	protected void setStatusCode(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+	private void setStatusCode(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
 		if(HttpMethod.POST.equals(requestContext.getMethod())) {
 			responseContext.setStatusInfo(Response.Status.CREATED);
 		}
