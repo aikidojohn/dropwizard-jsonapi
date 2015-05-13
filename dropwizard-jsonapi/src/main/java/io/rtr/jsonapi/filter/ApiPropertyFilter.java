@@ -44,22 +44,22 @@ public class ApiPropertyFilter implements PropertyFilter {
 	@Override
 	public void serializeAsField(Object pojo, JsonGenerator jgen,
 			SerializerProvider prov, PropertyWriter writer) throws Exception {
-		if (writer instanceof BeanPropertyWriter) {
-			final BeanPropertyWriter w = (BeanPropertyWriter)writer;
-			final AnnotatedMember member = w.getMember();
-			final Class<?> declaringClass = member.getDeclaringClass();
-			final String modelType = getModelType(declaringClass);
-			final Set<String> filteredFields = filtersByModelType.get(modelType);
-			if (filteredFields != null && !filteredFields.contains(w.getName())) {
-				log.debug("filtered {}.{}", modelType, w.getName());
-				return;
-			}
+		if (pojo == null) {
+			return;
+		}
+		
+		final Class<?> declaringClass = pojo.getClass();
+		final String modelType = getModelType(declaringClass);
+		final Set<String> filteredFields = filtersByModelType.get(modelType);
+		if (filteredFields != null && !filteredFields.contains(writer.getName())) {
+			log.debug("filtered {}.{}", modelType, writer.getName());
+			return;
 		}
 		writer.serializeAsField(pojo, jgen, prov);		
 	}
 	
 	private String getModelType(Class<?> type) {
-		ApiModel model = type.getDeclaredAnnotation(ApiModel.class);
+		ApiModel model = type.getAnnotation(ApiModel.class);
 		if (model != null) {
 			String modelType = model.type();
 			if ("undefined".equals(modelType)) {
