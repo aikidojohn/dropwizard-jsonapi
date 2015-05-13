@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -87,10 +88,11 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			for (Object inc : inculdeObjects) {
 				docBuilder.include(buildIncludeEntity(requestResourceMapping, inc,  resource, includeKeys, inculdeObjects));
 			}
+			setStatusCode(requestContext, responseContext);
 			responseContext.setEntity(docBuilder.build(uriInfo));
 		}
 	}
-	
+
 	private ResourceObjectImpl buildEntity(final Mapping mapping, final Object entity, final Object resource, Collection<String> includeKeys, List<Object> includes) {
 		final Mapping entityMapping = resourceMapping.getMappingByModel(entity.getClass());
 		Mapping m = mapping;
@@ -212,5 +214,13 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		return requestContext.getAcceptableMediaTypes()
 				.stream()
 				.anyMatch(m -> JSONAPI_MEDIATYPE.equals(m));
+	}
+
+	private void setStatusCode(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+		if(HttpMethod.POST.equals(requestContext.getMethod())) {
+			responseContext.setStatusInfo(Response.Status.CREATED);
+		} else if(HttpMethod.DELETE.equals(requestContext.getMethod())) {
+			responseContext.setStatusInfo(Response.Status.NO_CONTENT);
+		}
 	}
 }
