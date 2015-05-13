@@ -219,6 +219,8 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 	private void setStatusCode(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
 		if(HttpMethod.POST.equals(requestContext.getMethod())) {
 			responseContext.setStatusInfo(Response.Status.CREATED);
+		} else if(HttpMethod.DELETE.equals(requestContext.getMethod())) {
+			responseContext.setStatusInfo(Response.Status.NO_CONTENT);
 		}
 	}
 }

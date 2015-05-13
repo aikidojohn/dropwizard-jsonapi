@@ -27,6 +27,12 @@ public class PeopleResource {
 	public Person postPerson() {
 		return store.addPerson("5", "Zain Cheng", "Rent the Runway");
 	}
+
+	@DELETE
+	@Path("{id}")
+	public void deletePerson(@PathParam("id") String id) {
+		store.removePerson(id);
+	}
 	
 	@GET
 	@Path("{id}")

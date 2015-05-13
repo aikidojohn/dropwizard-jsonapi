@@ -66,6 +66,10 @@ public class DataStore {
 		people.put(id, p);
 		return p;
 	}
+
+	public void removePerson(String id) {
+		people.remove(id);
+	}
 	
 	private void addArticle(String id, String title, String body) {
 		Article a = createArticle(id, title, body);
