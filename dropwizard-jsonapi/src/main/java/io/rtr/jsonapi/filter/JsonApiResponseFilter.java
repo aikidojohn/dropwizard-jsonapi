@@ -196,6 +196,16 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		return null;
 	}
 
+	/**
+	 * Finds the field with the given name through the class's hierarchy. It will return the field that
+	 * is closest in ancestry to the given class. That is, if the field exists in both the parent class
+	 * and the grandparent class, it will return the field that is in the parent class.
+	 *
+	 * @param obj  Object that will be the starting point to search for the field
+	 * @param fieldName  The name of the field to be searched for
+	 * @return  The Field that corresponds to the fieldName
+	 * @throws NoSuchFieldException  If the field is not found
+	 */
 	private Field findDeclaredField(Object obj, String fieldName) throws NoSuchFieldException {
 		List<Field> fields = Lists.newArrayList();
 		getAllFields(fields, obj.getClass());
