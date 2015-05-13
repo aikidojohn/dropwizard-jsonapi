@@ -21,7 +21,6 @@ public class SampleService extends Application<SampleConfiguration> {
 	}
 	@Override
 	public void initialize(Bootstrap<SampleConfiguration> bootstrap) {
-		//bootstrap.addBundle(new AssetsBundle("/assets/", "/"));
 		bootstrap.addBundle(new ApiBundle());
 	}
 
