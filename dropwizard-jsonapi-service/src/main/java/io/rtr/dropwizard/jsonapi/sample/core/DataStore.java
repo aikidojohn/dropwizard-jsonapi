@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.joda.time.DateTime;
 
 public class DataStore {
 	private Map<String, Article> articles = Maps.newHashMap();
@@ -89,6 +90,7 @@ public class DataStore {
 		person.setId(id);
 		person.setName(name);
 		person.setCompany(company);
+		person.setCreated(DateTime.now().toString("yyyy/MM/dd"));
 		return person;
 	}
 }

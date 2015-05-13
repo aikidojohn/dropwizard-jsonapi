@@ -7,14 +7,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @ApiModel(type = "people", id = "id")
 @JsonInclude(Include.NON_NULL)
-public class Person {
-	private String id;
+public class Person extends BaseModel {
+
 	private String name;
 	private String company;
-	
-	public String getId() {
-		return id;
-	}
 
 	public String getName() {
 		return name;
@@ -32,7 +28,4 @@ public class Person {
 		this.company = company;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
 }
