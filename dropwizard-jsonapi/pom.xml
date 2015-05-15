@@ -4,7 +4,7 @@
     <parent>
         <artifactId>dropwizard-jsonapi-parent</artifactId>
         <groupId>io.rtr.dropwizard.jsonapi</groupId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>dropwizard-jsonapi</artifactId>
@@ -79,7 +79,7 @@
     									</goals>
     								</pluginExecutionFilter>
     								<action>
-    									<ignore></ignore>
+    									<ignore />
     								</action>
     							</pluginExecution>
     						</pluginExecutions>
