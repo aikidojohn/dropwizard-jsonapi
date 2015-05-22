@@ -26,6 +26,18 @@ public class JsonApiFeature implements Feature {
         	context.register(JsonApiResponseFilter.class);
         	return true;
         }
+		if (!config.isRegistered(JsonApiRequestFilter.class)) {
+			context.register(new AbstractBinder() {
+
+				@Override
+				protected void configure() {
+					bindAsContract(ResourceMappingContext.class).in(Singleton.class);
+				}
+			});
+
+			context.register(JsonApiRequestFilter.class);
+			return true;
+		}
 		return false;
 	}
 
