@@ -14,18 +14,30 @@ public class JsonApiFeature implements Feature {
 	@Override
 	public boolean configure(FeatureContext context) {
 		Configuration config = context.getConfiguration();
-        if (!config.isRegistered(JsonApiResponseFilter.class)) {
-        	context.register(new AbstractBinder() {
+		if (!config.isRegistered(JsonApiResponseFilter.class)) {
+			context.register(new AbstractBinder() {
 
-                @Override
-                protected void configure() {
-                    bindAsContract(ResourceMappingContext.class).in(Singleton.class);
-                }
-            });
-        	
-        	context.register(JsonApiResponseFilter.class);
-        	return true;
-        }
+				@Override
+				protected void configure() {
+					bindAsContract(ResourceMappingContext.class).in(Singleton.class);
+				}
+			});
+
+			context.register(JsonApiResponseFilter.class);
+			return true;
+		}
+		if (!config.isRegistered(JsonApiRequestFilter.class)) {
+			context.register(new AbstractBinder() {
+
+				@Override
+				protected void configure() {
+					bindAsContract(ResourceMappingContext.class).in(Singleton.class);
+				}
+			});
+
+			context.register(JsonApiRequestFilter.class);
+			return true;
+		}
 		return false;
 	}
 
