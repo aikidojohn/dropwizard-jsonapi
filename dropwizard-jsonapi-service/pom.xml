@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>dropwizard-jsonapi-parent</artifactId>
 		<groupId>io.rtr.dropwizard.jsonapi</groupId>
-		<version>0.4-SNAPSHOT</version>
+		<version>0.5-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -15,7 +15,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.rtr.dropwizard.jsonapi</groupId>
-			<artifactId>dropwizard-jsonapi</artifactId>
+			<artifactId>godmother-jsonapi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
