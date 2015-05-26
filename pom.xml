@@ -3,7 +3,7 @@
 
 	<groupId>io.rtr.dropwizard.jsonapi</groupId>
 	<artifactId>dropwizard-jsonapi-parent</artifactId>
-	<version>0.6</version>
+	<version>0.7-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Dropwizard JSONAP Extension</name>

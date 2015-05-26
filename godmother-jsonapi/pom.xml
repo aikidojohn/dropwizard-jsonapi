@@ -4,7 +4,7 @@
     <parent>
         <artifactId>dropwizard-jsonapi-parent</artifactId>
         <groupId>io.rtr.dropwizard.jsonapi</groupId>
-        <version>0.6</version>
+        <version>0.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>godmother-jsonapi</artifactId>
