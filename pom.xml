@@ -3,14 +3,14 @@
 
 	<groupId>io.rtr.dropwizard.jsonapi</groupId>
 	<artifactId>dropwizard-jsonapi-parent</artifactId>
-	<version>0.4-SNAPSHOT</version>
+	<version>0.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Dropwizard JSONAP Extension</name>
 	<url>https://github.com/aikidojohn/dropwizard-jsonapi</url>
 
 	<modules>
-		<module>dropwizard-jsonapi</module>
+		<module>godmother-jsonapi</module>
 		<module>dropwizard-jsonapi-service</module>
 	</modules>
 
