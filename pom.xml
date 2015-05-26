@@ -26,6 +26,21 @@
 		<jersey.version>2.17</jersey.version>
 	</properties>
 
+	<distributionManagement>
+		<repository>
+			<id>rtr-nexus</id>
+			<name>rtr-nexus</name>
+			<url>http://nexus01.renttherunway.it/content/repositories/releases
+			</url>
+		</repository>
+		<snapshotRepository>
+			<id>rtr-nexus</id>
+			<name>rtr-nexus</name>
+			<url>http://nexus01.renttherunway.it/content/repositories/snapshots/
+			</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
