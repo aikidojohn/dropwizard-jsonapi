@@ -40,7 +40,7 @@
 			</url>
 		</snapshotRepository>
 	</distributionManagement>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
