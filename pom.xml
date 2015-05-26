@@ -7,7 +7,7 @@
 	<packaging>pom</packaging>
 
 	<name>Dropwizard JSONAP Extension</name>
-	<url>https://github.com/aikidojohn/dropwizard-jsonapi</url>
+	<url>https://github.com/RentTheRunway2/dropwizard-jsonapi</url>
 
 	<modules>
 		<module>godmother-jsonapi</module>
@@ -15,8 +15,8 @@
 	</modules>
 
 	<scm>
-		<connection>scm:git:git@github.com:aikidojohn/dropwizard-jsonapi.git</connection>
-		<url>scm:git:git@github.com:aikidojohn/dropwizard-jsonapi.git</url>
+		<connection>scm:git:git@github.com:RentTheRunway2/dropwizard-jsonapi.git</connection>
+		<url>scm:git:git@github.com:RentTheRunway2/dropwizard-jsonapi.git</url>
 		<tag>v0.5</tag>
 	</scm>
 
