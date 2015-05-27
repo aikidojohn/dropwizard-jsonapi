@@ -12,7 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Map;
 
 @Provider
 public class JsonApiRequestFilter implements ContainerRequestFilter
@@ -32,7 +32,7 @@ public class JsonApiRequestFilter implements ContainerRequestFilter
         // Buffer input
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         // add in id to make the object complete
-        HashMap<String, Object> attributesWithId = jsonAPIRequest.getData().getAttributes();
+        Map<String, Object> attributesWithId = jsonAPIRequest.getData().getAttributes();
         attributesWithId.put("id", jsonAPIRequest.getData().getId());
         objectMapper.writeValue(baos, attributesWithId);
 
