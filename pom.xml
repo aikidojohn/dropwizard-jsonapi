@@ -10,7 +10,7 @@
 	<url>https://github.com/RentTheRunway2/dropwizard-jsonapi</url>
 
 	<modules>
-		<module>godmother-jsonapi</module>
+		<module>dropwizard-jsonapi</module>
 		<module>dropwizard-jsonapi-service</module>
 	</modules>
 
