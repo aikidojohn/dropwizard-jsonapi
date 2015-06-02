@@ -5,6 +5,7 @@ import io.rtr.jsonapi.JSONAPI.ApiDocumentBuilder;
 import io.rtr.jsonapi.JSONAPI.ResourceObjectBuilder;
 import io.rtr.jsonapi.JsonLink;
 import io.rtr.jsonapi.Linkage;
+import io.rtr.jsonapi.ResponseData;
 import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext.Mapping;
@@ -99,8 +100,11 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		if (entityMapping != null) {
 			m = entityMapping;
 		}
-		
-		final ResourceObjectBuilder dataBuilder = JSONAPI.data(entity);
+		ResponseData<Object> responseData = new ResponseData<>();
+		responseData.setAttributes(entity);
+		responseData.setType(entity.getClass().getTypeName());
+		responseData.setId(getId(entity));
+		final ResourceObjectBuilder dataBuilder = JSONAPI.data(responseData);
 		if (m != null) {
 			for (String key : m.getKeys()) {
 				UriTemplate template = new UriTemplate(m.getPathTemplate(key));
@@ -133,8 +137,11 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		if (entityMapping != null) {
 			m = entityMapping;
 		}
-		
-		final ResourceObjectBuilder dataBuilder = JSONAPI.data(entity);
+		ResponseData<Object> responseData = new ResponseData<>();
+		responseData.setAttributes(entity);
+		responseData.setType(entity.getClass().getTypeName());
+		responseData.setId(getId(entity));
+		final ResourceObjectBuilder dataBuilder = JSONAPI.data(responseData);
 		if (m != null) {
 			String key = "self";
 			UriTemplate template = new UriTemplate(m.getPathTemplate(key));
