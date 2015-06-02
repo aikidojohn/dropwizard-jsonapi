@@ -6,11 +6,12 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import io.rtr.jsonapi.ResponseData;
 
 @JsonInclude(Include.NON_NULL)
 public class ResourceObjectImpl<T> {
 	@JsonUnwrapped
-	private T data;
+	private ResponseData<T> data;
 	private String type;
 	
 	private Object meta;
@@ -23,10 +24,10 @@ public class ResourceObjectImpl<T> {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public T getData() {
+	public ResponseData<T> getData() {
 		return data;
 	}
-	public void setData(T data) {
+	public void setData(ResponseData<T> data) {
 		this.data = data;
 	}
 	public Object getMeta() {

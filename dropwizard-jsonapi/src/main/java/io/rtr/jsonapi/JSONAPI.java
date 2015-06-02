@@ -22,7 +22,7 @@ public class JSONAPI {
 		return new ApiDocumentBuilder<D>(data);
 	}
 	
-	public static <D> ResourceObjectBuilder<D> data(D data) {
+	public static <D> ResourceObjectBuilder<D> data(ResponseData<D> data) {
 		return new ResourceObjectBuilder<D>(data);
 	}
 	
@@ -86,12 +86,12 @@ public class JSONAPI {
 	
 	
 	public static class ResourceObjectBuilder<D> {
-		private D data;
+		private ResponseData<D> data;
 		private List<Object> includes = Lists.newLinkedList();
 		private Map<String, Object> links = Maps.newHashMap();
 		private Object meta;
 		
-		public ResourceObjectBuilder(D data) {
+		public ResourceObjectBuilder(ResponseData<D> data) {
 			this.data = data;
 		}
 		
@@ -118,7 +118,7 @@ public class JSONAPI {
 		public ResourceObjectImpl<D> build() {
 			ResourceObjectImpl<D> doc = new ResourceObjectImpl<D>();
 			doc.setData(data);
-			doc.setType(getType(data));
+			doc.setType(getType(data.attributes));
 			
 			if (!includes.isEmpty()) {
 				doc.setIncluded(includes);

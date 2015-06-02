@@ -2,10 +2,7 @@ package io.rtr.dropwizard.jsonapi.sample.resources;
 
 import io.rtr.dropwizard.jsonapi.sample.models.Article;
 import io.rtr.dropwizard.jsonapi.sample.models.Person;
-import io.rtr.jsonapi.ApiDocument;
-import io.rtr.jsonapi.JSONAPI;
-import io.rtr.jsonapi.JsonLink;
-import io.rtr.jsonapi.Linkage;
+import io.rtr.jsonapi.*;
 import io.rtr.jsonapi.impl.ResourceObjectImpl;
 
 import java.util.List;
@@ -42,9 +39,16 @@ public class SampleResource {
 		JsonLink authorLink = new JsonLink(uriInfo.getAbsolutePath().toString() + "/1/links/author", 
 				uriInfo.getAbsolutePath().toString() + "/1/author", 
 				Lists.newArrayList(new Linkage("people", "2")));
-
-		ResourceObjectImpl<Person> authorObj = JSONAPI.data(author).build();
-		ResourceObjectImpl<Article> articleObj = JSONAPI.data(article).link("author", authorLink).build();
+		ResponseData<Person> personData = new ResponseData<>();
+		personData.setAttributes(author);
+		personData.setType(author.getClass().getTypeName());
+		personData.setId(author.getId());
+		ResourceObjectImpl<Person> authorObj = JSONAPI.data(personData).build();
+		ResponseData<Article> articleData = new ResponseData<>();
+		articleData.setAttributes(article);
+		articleData.setType(author.getClass().getTypeName());
+		articleData.setId(author.getId());
+		ResourceObjectImpl<Article> articleObj = JSONAPI.data(articleData).link("author", authorLink).build();
 		
 		List<ResourceObjectImpl<Article>> articles = Lists.newArrayList(articleObj);
 		ApiDocument doc = JSONAPI.document(articles).link("self", uriInfo.getAbsolutePath().toString()).include(authorObj).build(uriInfo);
