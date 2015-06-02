@@ -15,7 +15,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.rtr.dropwizard.jsonapi</groupId>
-			<artifactId>godmother-jsonapi</artifactId>
+			<artifactId>dropwizard-jsonapi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

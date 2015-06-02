@@ -7,7 +7,7 @@
         <version>0.9-SNAPSHOT</version>
     </parent>
 
-    <artifactId>godmother-jsonapi</artifactId>
+    <artifactId>dropwizard-jsonapi</artifactId>
     <packaging>jar</packaging>
     <name>Dropwizard JSONAPI Extension</name>
 
