@@ -124,7 +124,7 @@ public class JSONAPI {
 				doc.setIncluded(includes);
 			}
 			if (!links.isEmpty()) {
-				doc.setLinks(links);
+				doc.setRelationships(links);
 			}
 			if (meta != null) {
 				doc.setMeta(meta);

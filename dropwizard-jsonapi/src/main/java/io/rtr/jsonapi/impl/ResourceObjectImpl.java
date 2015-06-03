@@ -16,7 +16,7 @@ public class ResourceObjectImpl<T> {
 	
 	private Object meta;
 	private List<Object> included;
-	private Map<String, Object> links;
+	private Map<String, Object> relationships;
 	
 	public String getType() {
 		return type;
@@ -42,10 +42,10 @@ public class ResourceObjectImpl<T> {
 	public void setIncluded(List<Object> included) {
 		this.included = included;
 	}
-	public Map<String, Object> getLinks() {
-		return links;
+	public Map<String, Object> getRelationships() {
+		return relationships;
 	}
-	public void setLinks(Map<String, Object> links) {
-		this.links = links;
+	public void setRelationships(Map<String, Object> relationships) {
+		this.relationships = relationships;
 	}
 }
