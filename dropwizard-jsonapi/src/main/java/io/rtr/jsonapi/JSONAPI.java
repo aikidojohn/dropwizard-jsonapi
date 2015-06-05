@@ -11,6 +11,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.rtr.jsonapi.impl.ResourceObjectImplLinks;
 
 public class JSONAPI {
 
@@ -24,6 +25,10 @@ public class JSONAPI {
 	
 	public static <D> ResourceObjectBuilder<D> data(ResponseData<D> data) {
 		return new ResourceObjectBuilder<D>(data);
+	}
+
+	public static <D> ResourceObjectBuilderLinks<D> dataLinks(ResponseData<D> data) {
+		return new ResourceObjectBuilderLinks<D>(data);
 	}
 	
 	public static class ApiDocumentBuilder<D> {
@@ -83,7 +88,69 @@ public class JSONAPI {
 			return doc;
 		}
 	}
-	
+
+	public static class ResourceObjectBuilderLinks<D> {
+		private ResponseData<D> data;
+		private List<Object> includes = Lists.newLinkedList();
+		private Map<String, Object> links = Maps.newHashMap();
+		private Object meta;
+
+		public ResourceObjectBuilderLinks(ResponseData<D> data) {
+			this.data = data;
+		}
+
+		public ResourceObjectBuilderLinks<D> include(Object include) {
+			includes.add(include);
+			return this;
+		}
+
+		public ResourceObjectBuilderLinks<D> link(String key, String link) {
+			links.put(key, link);
+			return this;
+		}
+
+		public ResourceObjectBuilderLinks<D> link(String key, JsonLink link) {
+			links.put(key, link);
+			return this;
+		}
+
+		public ResourceObjectBuilderLinks<D> meta(Object meta) {
+			this.meta = meta;
+			return this;
+		}
+
+		public ResourceObjectImplLinks<D> build() {
+			ResourceObjectImplLinks<D> doc = new ResourceObjectImplLinks<D>();
+			doc.setData(data);
+			doc.setType(getType(data.attributes));
+
+			if (!includes.isEmpty()) {
+				doc.setIncluded(includes);
+			}
+			if (!links.isEmpty()) {
+				doc.setLinks(links);
+			}
+			if (meta != null) {
+				doc.setMeta(meta);
+			}
+			return doc;
+		}
+
+		private String getType(D data) {
+			ApiModel model = data.getClass().getAnnotation(ApiModel.class);
+			if (model != null) {
+				String type = model.value();
+				if ("undefined".equals(type)) {
+					type = model.type();
+				}
+				if ("undefined".equals(type)) {
+					return null;
+				}
+				return type;
+			}
+			return null;
+		}
+	}
 	
 	public static class ResourceObjectBuilder<D> {
 		private ResponseData<D> data;

@@ -27,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.rtr.jsonapi.impl.ResourceObjectImplLinks;
 import io.rtr.jsonapi.util.FieldUtil;
 import org.glassfish.jersey.uri.UriTemplate;
 import org.slf4j.Logger;
@@ -124,7 +125,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 						dataBuilder.link(key,  new JsonLink(null, linkSelfUri, includeLinkage));
 						includes.addAll(included);
 					} else {
-						if (!key.equals("self")) {
+						if (!key.equals("self") && !key.equals(getType(entity))) {
 							dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
 						}
 					}
@@ -133,8 +134,22 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		}
 		return dataBuilder.build();
 	}
+	private String getType(Object data) {
+		ApiModel model = data.getClass().getAnnotation(ApiModel.class);
+		if (model != null) {
+			String type = model.value();
+			if ("undefined".equals(type)) {
+				type = model.type();
+			}
+			if ("undefined".equals(type)) {
+				return null;
+			}
+			return type;
+		}
+		return null;
+	}
 	
-	private ResourceObjectImpl buildIncludeEntity(final Mapping mapping, final Object entity, final Object resource, Collection<String> includeKeys, List<Object> includes) {
+	private ResourceObjectImplLinks buildIncludeEntity(final Mapping mapping, final Object entity, final Object resource, Collection<String> includeKeys, List<Object> includes) {
 		final Mapping entityMapping = resourceMapping.getMappingByModel(entity.getClass());
 		Mapping m = mapping;
 		if (entityMapping != null) {
@@ -144,7 +159,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		responseData.setAttributes(entity);
 		responseData.setType(entity.getClass().getTypeName());
 		responseData.setId(getId(entity));
-		final ResourceObjectBuilder dataBuilder = JSONAPI.data(responseData);
+		final JSONAPI.ResourceObjectBuilderLinks dataBuilder = JSONAPI.dataLinks(responseData);
 		if (m != null) {
 			String key = "self";
 			UriTemplate template = new UriTemplate(m.getPathTemplate(key));
