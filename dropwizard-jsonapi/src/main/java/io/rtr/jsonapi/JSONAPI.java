@@ -11,6 +11,9 @@ import javax.ws.rs.core.UriInfo;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.rtr.jsonapi.impl.IncludesResourceObjectImpl;
+import io.rtr.jsonapi.util.EntityUtil;
+import io.rtr.jsonapi.util.FieldUtil;
 
 public class JSONAPI {
 
@@ -24,6 +27,10 @@ public class JSONAPI {
 	
 	public static <D> ResourceObjectBuilder<D> data(ResponseData<D> data) {
 		return new ResourceObjectBuilder<D>(data);
+	}
+
+	public static <D> IncludesResourceObjectBuilders<D> includesData(ResponseData<D> data) {
+		return new IncludesResourceObjectBuilders<D>(data);
 	}
 	
 	public static class ApiDocumentBuilder<D> {
@@ -83,7 +90,54 @@ public class JSONAPI {
 			return doc;
 		}
 	}
-	
+
+	public static class IncludesResourceObjectBuilders<D> {
+		private ResponseData<D> data;
+		private List<Object> includes = Lists.newLinkedList();
+		private Map<String, Object> links = Maps.newHashMap();
+		private Object meta;
+
+		public IncludesResourceObjectBuilders(ResponseData<D> data) {
+			this.data = data;
+		}
+
+		public IncludesResourceObjectBuilders<D> include(Object include) {
+			includes.add(include);
+			return this;
+		}
+
+		public IncludesResourceObjectBuilders<D> link(String key, String link) {
+			links.put(key, link);
+			return this;
+		}
+
+		public IncludesResourceObjectBuilders<D> link(String key, JsonLink link) {
+			links.put(key, link);
+			return this;
+		}
+
+		public IncludesResourceObjectBuilders<D> meta(Object meta) {
+			this.meta = meta;
+			return this;
+		}
+
+		public IncludesResourceObjectImpl<D> build() {
+			IncludesResourceObjectImpl<D> doc = new IncludesResourceObjectImpl<D>();
+			doc.setData(data);
+			doc.setType(EntityUtil.getType(data.attributes));
+
+			if (!includes.isEmpty()) {
+				doc.setIncluded(includes);
+			}
+			if (!links.isEmpty()) {
+				doc.setLinks(links);
+			}
+			if (meta != null) {
+				doc.setMeta(meta);
+			}
+			return doc;
+		}
+	}
 	
 	public static class ResourceObjectBuilder<D> {
 		private ResponseData<D> data;

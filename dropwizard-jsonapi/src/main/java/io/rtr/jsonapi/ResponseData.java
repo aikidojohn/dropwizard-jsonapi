@@ -21,13 +21,13 @@ public class ResponseData<T> {
     this.id = id;
   }
   public T getAttributes() {
-    setId(attributes);
+    setIdAttribute(attributes);
     return attributes;
   }
   public void setAttributes(T attributes) {
     this.attributes = attributes;
   }
-  private void setId(Object obj) {
+  private void setIdAttribute(Object obj) {
     try {
       Field field = FieldUtil.findDeclaredField(obj, "id");
       field.setAccessible(true);

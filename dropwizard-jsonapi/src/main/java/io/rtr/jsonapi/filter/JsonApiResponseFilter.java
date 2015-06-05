@@ -27,6 +27,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.rtr.jsonapi.impl.IncludesResourceObjectImpl;
+import io.rtr.jsonapi.util.EntityUtil;
 import io.rtr.jsonapi.util.FieldUtil;
 import org.glassfish.jersey.uri.UriTemplate;
 import org.slf4j.Logger;
@@ -124,7 +126,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 						dataBuilder.link(key,  new JsonLink(null, linkSelfUri, includeLinkage));
 						includes.addAll(included);
 					} else {
-						if (!key.equals("self")) {
+						if (!key.equals("self") && !key.equals(EntityUtil.getType(entity))) {
 							dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
 						}
 					}
@@ -134,7 +136,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		return dataBuilder.build();
 	}
 	
-	private ResourceObjectImpl buildIncludeEntity(final Mapping mapping, final Object entity, final Object resource, Collection<String> includeKeys, List<Object> includes) {
+	private IncludesResourceObjectImpl buildIncludeEntity(final Mapping mapping, final Object entity, final Object resource, Collection<String> includeKeys, List<Object> includes) {
 		final Mapping entityMapping = resourceMapping.getMappingByModel(entity.getClass());
 		Mapping m = mapping;
 		if (entityMapping != null) {
@@ -144,10 +146,11 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		responseData.setAttributes(entity);
 		responseData.setType(entity.getClass().getTypeName());
 		responseData.setId(getId(entity));
-		final ResourceObjectBuilder dataBuilder = JSONAPI.data(responseData);
+		final JSONAPI.IncludesResourceObjectBuilders dataBuilder = JSONAPI.includesData(responseData);
 		if (m != null) {
 			String key = "self";
-			UriTemplate template = new UriTemplate(m.getPathTemplate(key));
+			//use the template for the entity that is included, not the base entity
+			UriTemplate template = new UriTemplate(m.getPathTemplate(EntityUtil.getType(entity)));
 			String id = getId(entity);
 			if (id != null) {
 				String uri = template.createURI(id);
