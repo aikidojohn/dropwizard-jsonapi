@@ -11,7 +11,9 @@ import javax.ws.rs.core.UriInfo;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.rtr.jsonapi.impl.ResourceObjectImplLinks;
+import io.rtr.jsonapi.impl.IncludesResourceObjectImpl;
+import io.rtr.jsonapi.util.EntityUtil;
+import io.rtr.jsonapi.util.FieldUtil;
 
 public class JSONAPI {
 
@@ -27,8 +29,8 @@ public class JSONAPI {
 		return new ResourceObjectBuilder<D>(data);
 	}
 
-	public static <D> ResourceObjectBuilderLinks<D> dataLinks(ResponseData<D> data) {
-		return new ResourceObjectBuilderLinks<D>(data);
+	public static <D> IncludesResourceObjectBuilders<D> includesData(ResponseData<D> data) {
+		return new IncludesResourceObjectBuilders<D>(data);
 	}
 	
 	public static class ApiDocumentBuilder<D> {
@@ -89,40 +91,40 @@ public class JSONAPI {
 		}
 	}
 
-	public static class ResourceObjectBuilderLinks<D> {
+	public static class IncludesResourceObjectBuilders<D> {
 		private ResponseData<D> data;
 		private List<Object> includes = Lists.newLinkedList();
 		private Map<String, Object> links = Maps.newHashMap();
 		private Object meta;
 
-		public ResourceObjectBuilderLinks(ResponseData<D> data) {
+		public IncludesResourceObjectBuilders(ResponseData<D> data) {
 			this.data = data;
 		}
 
-		public ResourceObjectBuilderLinks<D> include(Object include) {
+		public IncludesResourceObjectBuilders<D> include(Object include) {
 			includes.add(include);
 			return this;
 		}
 
-		public ResourceObjectBuilderLinks<D> link(String key, String link) {
+		public IncludesResourceObjectBuilders<D> link(String key, String link) {
 			links.put(key, link);
 			return this;
 		}
 
-		public ResourceObjectBuilderLinks<D> link(String key, JsonLink link) {
+		public IncludesResourceObjectBuilders<D> link(String key, JsonLink link) {
 			links.put(key, link);
 			return this;
 		}
 
-		public ResourceObjectBuilderLinks<D> meta(Object meta) {
+		public IncludesResourceObjectBuilders<D> meta(Object meta) {
 			this.meta = meta;
 			return this;
 		}
 
-		public ResourceObjectImplLinks<D> build() {
-			ResourceObjectImplLinks<D> doc = new ResourceObjectImplLinks<D>();
+		public IncludesResourceObjectImpl<D> build() {
+			IncludesResourceObjectImpl<D> doc = new IncludesResourceObjectImpl<D>();
 			doc.setData(data);
-			doc.setType(getType(data.attributes));
+			doc.setType(EntityUtil.getType(data.attributes));
 
 			if (!includes.isEmpty()) {
 				doc.setIncluded(includes);
@@ -134,21 +136,6 @@ public class JSONAPI {
 				doc.setMeta(meta);
 			}
 			return doc;
-		}
-
-		private String getType(D data) {
-			ApiModel model = data.getClass().getAnnotation(ApiModel.class);
-			if (model != null) {
-				String type = model.value();
-				if ("undefined".equals(type)) {
-					type = model.type();
-				}
-				if ("undefined".equals(type)) {
-					return null;
-				}
-				return type;
-			}
-			return null;
 		}
 	}
 	

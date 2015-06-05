@@ -1,6 +1,7 @@
 package io.rtr.jsonapi.util;
 
 import com.google.common.collect.Lists;
+import io.rtr.jsonapi.annotation.ApiModel;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;

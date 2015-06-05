@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @JsonInclude(Include.NON_NULL)
-public class ResourceObjectImplLinks<T> {
+public class IncludesResourceObjectImpl<T> {
 	@JsonUnwrapped
 	private ResponseData<T> data;
 	private String type;
