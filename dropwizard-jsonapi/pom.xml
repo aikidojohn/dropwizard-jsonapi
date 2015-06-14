@@ -4,7 +4,7 @@
     <parent>
         <artifactId>dropwizard-jsonapi-parent</artifactId>
         <groupId>io.rtr.dropwizard.jsonapi</groupId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.13-SNAPSHOT</version>
     </parent>
 
     <artifactId>dropwizard-jsonapi</artifactId>
@@ -54,6 +54,20 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>rtr-nexus</id>
+            <name>rtr-nexus</name>
+            <url>http://nexus01.renttherunway.it/content/repositories/releases
+            </url>
+        </repository>
+        <snapshotRepository>
+            <id>rtr-nexus</id>
+            <name>rtr-nexus</name>
+            <url>http://nexus01.renttherunway.it/content/repositories/snapshots/
+            </url>
+        </snapshotRepository>
+    </distributionManagement>
     <build>
     	<pluginManagement>
     		<plugins>
@@ -89,4 +103,8 @@
     		</plugins>
     	</pluginManagement>
     </build>
+
+  <scm>
+    <tag>v0.6</tag>
+  </scm>
 </project>

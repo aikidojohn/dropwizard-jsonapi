@@ -5,6 +5,7 @@ import io.rtr.jsonapi.JSONAPI.ApiDocumentBuilder;
 import io.rtr.jsonapi.JSONAPI.ResourceObjectBuilder;
 import io.rtr.jsonapi.JsonLink;
 import io.rtr.jsonapi.Linkage;
+import io.rtr.jsonapi.ResponseData;
 import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext.Mapping;
@@ -26,6 +27,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.rtr.jsonapi.impl.IncludesResourceObjectImpl;
+import io.rtr.jsonapi.util.EntityUtil;
+import io.rtr.jsonapi.util.FieldUtil;
 import org.glassfish.jersey.uri.UriTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,8 +103,11 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		if (entityMapping != null) {
 			m = entityMapping;
 		}
-		
-		final ResourceObjectBuilder dataBuilder = JSONAPI.data(entity);
+		ResponseData<Object> responseData = new ResponseData<>();
+		responseData.setAttributes(entity);
+		responseData.setType(entity.getClass().getTypeName());
+		responseData.setId(getId(entity));
+		final ResourceObjectBuilder dataBuilder = JSONAPI.data(responseData);
 		if (m != null) {
 			for (String key : m.getKeys()) {
 				UriTemplate template = new UriTemplate(m.getPathTemplate(key));
@@ -119,7 +126,9 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 						dataBuilder.link(key,  new JsonLink(null, linkSelfUri, includeLinkage));
 						includes.addAll(included);
 					} else {
-						dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
+						if (!key.equals("self") && !key.equals(EntityUtil.getType(entity))) {
+							dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
+						}
 					}
 				}
 			}
@@ -127,17 +136,21 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		return dataBuilder.build();
 	}
 	
-	private ResourceObjectImpl buildIncludeEntity(final Mapping mapping, final Object entity, final Object resource, Collection<String> includeKeys, List<Object> includes) {
+	private IncludesResourceObjectImpl buildIncludeEntity(final Mapping mapping, final Object entity, final Object resource, Collection<String> includeKeys, List<Object> includes) {
 		final Mapping entityMapping = resourceMapping.getMappingByModel(entity.getClass());
 		Mapping m = mapping;
 		if (entityMapping != null) {
 			m = entityMapping;
 		}
-		
-		final ResourceObjectBuilder dataBuilder = JSONAPI.data(entity);
+		ResponseData<Object> responseData = new ResponseData<>();
+		responseData.setAttributes(entity);
+		responseData.setType(entity.getClass().getTypeName());
+		responseData.setId(getId(entity));
+		final JSONAPI.IncludesResourceObjectBuilders dataBuilder = JSONAPI.includesData(responseData);
 		if (m != null) {
 			String key = "self";
-			UriTemplate template = new UriTemplate(m.getPathTemplate(key));
+			//use the template for the entity that is included, not the base entity
+			UriTemplate template = new UriTemplate(m.getPathTemplate(EntityUtil.getType(entity)));
 			String id = getId(entity);
 			if (id != null) {
 				String uri = template.createURI(id);
@@ -184,7 +197,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 	
 	private String getId(Object obj) {
 		try {
-			Field field = findDeclaredField(obj, "id");
+			Field field = FieldUtil.findDeclaredField(obj, "id");
 			field.setAccessible(true);
 			Object id = field.get(obj);
 			if (id instanceof String) {
@@ -196,44 +209,6 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	/**
-	 * Finds the field with the given name through the class's hierarchy. It will return the field that
-	 * is closest in ancestry to the given class. That is, if the field exists in both the parent class
-	 * and the grandparent class, it will return the field that is in the parent class.
-	 *
-	 * @param obj  Object that will be the starting point to search for the field
-	 * @param fieldName  The name of the field to be searched for
-	 * @return  The Field that corresponds to the fieldName
-	 * @throws NoSuchFieldException  If the field is not found
-	 */
-	private Field findDeclaredField(Object obj, String fieldName) throws NoSuchFieldException {
-		List<Field> fields = Lists.newArrayList();
-		getAllFields(fields, obj.getClass());
-		for(Field field : fields) {
-			if(field.getName().equals(fieldName)) {
-				return field;
-			}
-		}
-		throw new NoSuchFieldException("No Field found for fieldName=" + fieldName + ", Obj=" + obj.getClass().getCanonicalName());
-	}
-
-	/**
-	 * A recursive method to find all the fields (including fields of the class's parents) of a class
-	 *
-	 * @param fields A container for Field objects, which is used by the recursion
-	 * @param type The class that the recursion starts with
-	 * @return a list of fields from the given class and all of its parents
-	 */
-	private List<Field> getAllFields(List<Field> fields, Class<?> type) {
-		fields.addAll(Arrays.asList(type.getDeclaredFields()));
-
-		if (type.getSuperclass() != null) {
-			fields = getAllFields(fields, type.getSuperclass());
-		}
-
-		return fields;
 	}
 
 	private String getModelType(Class<?> type) {

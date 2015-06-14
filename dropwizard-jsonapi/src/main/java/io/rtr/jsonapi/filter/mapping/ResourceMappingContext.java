@@ -111,7 +111,7 @@ public class ResourceMappingContext {
             }
 
             /*
-             * Called for every child of a top level resoource. These are the actual resource paths in the root level resource.
+             * Called for every child of a top level resource. These are the actual resource paths in the root level resource.
              * (non-Javadoc)
              * @see org.glassfish.jersey.server.model.AbstractResourceModelVisitor#visitChildResource(org.glassfish.jersey.server.model.Resource)
              */

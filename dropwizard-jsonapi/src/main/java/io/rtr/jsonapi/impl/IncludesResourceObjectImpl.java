@@ -1,22 +1,22 @@
 package io.rtr.jsonapi.impl;
 
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import io.rtr.jsonapi.ResponseData;
 
+import java.util.List;
+import java.util.Map;
+
 @JsonInclude(Include.NON_NULL)
-public class ResourceObjectImpl<T> {
+public class IncludesResourceObjectImpl<T> {
 	@JsonUnwrapped
 	private ResponseData<T> data;
 	private String type;
 	
 	private Object meta;
 	private List<Object> included;
-	private Map<String, Object> relationships;
+	private Map<String, Object> links;
 	
 	public String getType() {
 		return type;
@@ -42,10 +42,10 @@ public class ResourceObjectImpl<T> {
 	public void setIncluded(List<Object> included) {
 		this.included = included;
 	}
-	public Map<String, Object> getRelationships() {
-		return relationships;
+	public Map<String, Object> getLinks() {
+		return links;
 	}
-	public void setRelationships(Map<String, Object> relationships) {
-		this.relationships = relationships;
+	public void setLinks(Map<String, Object> links) {
+		this.links = links;
 	}
 }
