@@ -2,18 +2,8 @@ package io.rtr.dropwizard.jsonapi.sample.resources;
 
 import io.rtr.dropwizard.jsonapi.sample.models.Article;
 import io.rtr.dropwizard.jsonapi.sample.models.Person;
-import io.rtr.jsonapi.ApiDocument;
-import io.rtr.jsonapi.JSONAPI;
-import io.rtr.jsonapi.JsonLink;
-import io.rtr.jsonapi.Linkage;
-import io.rtr.jsonapi.ResponseData;
-import io.rtr.jsonapi.impl.ResourceObjectImpl;
-
-import com.google.common.collect.Lists;
 
 import org.glassfish.jersey.linking.InjectLinkNoFollow;
-
-import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -36,7 +26,7 @@ public class SampleResource {
   @GET
   @Path("test")
   public Response getTest() {
-    final Article article = sampleArticle();
+    /*final Article article = sampleArticle();
     final Person author = sampleAuthor();
 
     final JsonLink authorLink = new JsonLink(uriInfo.getAbsolutePath().toString() + "/1/links/author", uriInfo.getAbsolutePath().toString()
@@ -54,7 +44,8 @@ public class SampleResource {
 
     final List<ResourceObjectImpl<Article>> articles = Lists.newArrayList(articleObj);
     final ApiDocument doc = JSONAPI.document(articles).link("self", uriInfo.getAbsolutePath().toString()).include(authorObj).build(uriInfo);
-    return Response.ok(doc).build();
+    return Response.ok(doc).build();*/
+    return Response.ok().build();
   }
 
   private Article sampleArticle() {

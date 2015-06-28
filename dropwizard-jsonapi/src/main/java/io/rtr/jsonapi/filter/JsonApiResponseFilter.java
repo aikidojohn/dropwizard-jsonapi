@@ -70,21 +70,21 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
         includeKeys.addAll(uriInfo.getQueryParameters().get("include"));
       }
 
-      ApiDocumentBuilder<Object> docBuilder = null;
+      ApiDocumentBuilder docBuilder = null;
       if (entity.getClass().isArray()) {
         final Object[] entityArray = (Object[]) entity;
-        final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(Arrays.stream(entityArray), requestResourceMapping, resource,
+        final List<ResourceObjectImpl> resourceObjects = buildEntityList(Arrays.stream(entityArray), requestResourceMapping, resource,
             includeKeys, inculdeObjects);
 
         docBuilder = JSONAPI.document(resourceObjects);
       } else if (Collection.class.isAssignableFrom(entity.getClass())) {
         final Collection<?> entityCollection = (Collection<?>) entity;
-        final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(entityCollection.stream(), requestResourceMapping, resource,
+        final List<ResourceObjectImpl> resourceObjects = buildEntityList(entityCollection.stream(), requestResourceMapping, resource,
             includeKeys, inculdeObjects);
 
         docBuilder = JSONAPI.document(resourceObjects);
       } else {
-        final ResourceObjectImpl<Object> data = buildEntity(requestResourceMapping, entity, resource, includeKeys, inculdeObjects);
+        final ResourceObjectImpl data = buildEntity(requestResourceMapping, entity, resource, includeKeys, inculdeObjects);
         docBuilder = JSONAPI.document(data);
       }
 
@@ -104,7 +104,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
     if (entityMapping != null) {
       m = entityMapping;
     }
-    final ResponseData<Object> responseData = new ResponseData<>();
+    final ResponseData responseData = new ResponseData();
     responseData.setAttributes(entity);
     responseData.setType(entity.getClass().getTypeName());
     responseData.setId(getId(entity));
@@ -144,7 +144,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
     if (entityMapping != null) {
       m = entityMapping;
     }
-    final ResponseData<Object> responseData = new ResponseData<>();
+    final ResponseData responseData = new ResponseData();
     responseData.setAttributes(entity);
     responseData.setType(entity.getClass().getTypeName());
     responseData.setId(getId(entity));
@@ -188,9 +188,9 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
   }
 
   @SuppressWarnings("checkstyle:indentation")
-  private List<ResourceObjectImpl<Object>> buildEntityList(final Stream<?> source, final Mapping requestResourceMapping, final Object resource,
+  private List<ResourceObjectImpl> buildEntityList(final Stream<?> source, final Mapping requestResourceMapping, final Object resource,
       final Collection<String> includeKeys, final List<Object> includes) {
-    final List<ResourceObjectImpl<Object>> resourceObjects = Lists.newArrayList();
+    final List<ResourceObjectImpl> resourceObjects = Lists.newArrayList();
     source.forEach(obj -> {
       resourceObjects.add(buildEntity(requestResourceMapping, obj, resource, includeKeys, includes));
     });

@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 @JsonInclude(Include.NON_NULL)
-public class ResourceObjectImpl<T> {
+public class ResourceObjectImpl {
   @JsonUnwrapped
-  private ResponseData<T> data;
+  private ResponseData data;
   private String type;
 
   private Object meta;
@@ -27,11 +27,11 @@ public class ResourceObjectImpl<T> {
     this.type = type;
   }
 
-  public ResponseData<T> getData() {
+  public ResponseData getData() {
     return data;
   }
 
-  public void setData(final ResponseData<T> data) {
+  public void setData(final ResponseData data) {
     this.data = data;
   }
 

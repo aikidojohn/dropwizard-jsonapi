@@ -4,10 +4,10 @@ import io.rtr.jsonapi.util.FieldUtil;
 
 import java.lang.reflect.Field;
 
-public class ResponseData<T> {
+public class ResponseData {
   String type;
   String id;
-  T attributes;
+  Object attributes;
 
   public String getType() {
     return type;
@@ -25,12 +25,12 @@ public class ResponseData<T> {
     this.id = id;
   }
 
-  public T getAttributes() {
+  public Object getAttributes() {
     setIdAttribute(attributes);
     return attributes;
   }
 
-  public void setAttributes(final T attributes) {
+  public void setAttributes(final Object attributes) {
     this.attributes = attributes;
   }
 

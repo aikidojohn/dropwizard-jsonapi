@@ -16,54 +16,54 @@ import javax.ws.rs.core.UriInfo;
 
 public class JSONAPI {
 
-  public static <D> ApiDocumentBuilder<D> document(final ResourceObjectImpl<D> data) {
-    return new ApiDocumentBuilder<D>(data);
+  public static ApiDocumentBuilder document(final ResourceObjectImpl data) {
+    return new ApiDocumentBuilder(data);
   }
 
-  public static <D> ApiDocumentBuilder<D> document(final List<ResourceObjectImpl<D>> data) {
-    return new ApiDocumentBuilder<D>(data);
+  public static ApiDocumentBuilder document(final List<ResourceObjectImpl> data) {
+    return new ApiDocumentBuilder(data);
   }
 
-  public static <D> ResourceObjectBuilder<D> data(final ResponseData<D> data) {
-    return new ResourceObjectBuilder<D>(data);
+  public static ResourceObjectBuilder data(final ResponseData data) {
+    return new ResourceObjectBuilder(data);
   }
 
-  public static <D> IncludesResourceObjectBuilders<D> includesData(final ResponseData<D> data) {
-    return new IncludesResourceObjectBuilders<D>(data);
+  public static IncludesResourceObjectBuilders includesData(final ResponseData data) {
+    return new IncludesResourceObjectBuilders(data);
   }
 
-  public static class ApiDocumentBuilder<D> {
-    private ResourceObjectImpl<D> data;
-    private List<ResourceObjectImpl<D>> dataList;
+  public static class ApiDocumentBuilder {
+    private ResourceObjectImpl data;
+    private List<ResourceObjectImpl> dataList;
 
     private final List<Object> includes = Lists.newLinkedList();
     private final Map<String, Object> links = Maps.newHashMap();
     private Object meta;
 
-    public ApiDocumentBuilder(final ResourceObjectImpl<D> data) {
+    public ApiDocumentBuilder(final ResourceObjectImpl data) {
       this.data = data;
     }
 
-    public ApiDocumentBuilder(final List<ResourceObjectImpl<D>> data) {
+    public ApiDocumentBuilder(final List<ResourceObjectImpl> data) {
       this.dataList = data;
     }
 
-    public ApiDocumentBuilder<D> include(final Object include) {
+    public ApiDocumentBuilder include(final Object include) {
       includes.add(include);
       return this;
     }
 
-    public ApiDocumentBuilder<D> link(final String key, final String link) {
+    public ApiDocumentBuilder link(final String key, final String link) {
       links.put(key, link);
       return this;
     }
 
-    public ApiDocumentBuilder<D> link(final String key, final JsonLink link) {
+    public ApiDocumentBuilder link(final String key, final JsonLink link) {
       links.put(key, link);
       return this;
     }
 
-    public ApiDocumentBuilder<D> meta(final Object meta) {
+    public ApiDocumentBuilder meta(final Object meta) {
       this.meta = meta;
       return this;
     }
@@ -89,38 +89,38 @@ public class JSONAPI {
     }
   }
 
-  public static class IncludesResourceObjectBuilders<D> {
-    private final ResponseData<D> data;
+  public static class IncludesResourceObjectBuilders {
+    private final ResponseData data;
     private final List<Object> includes = Lists.newLinkedList();
     private final Map<String, Object> links = Maps.newHashMap();
     private Object meta;
 
-    public IncludesResourceObjectBuilders(final ResponseData<D> data) {
+    public IncludesResourceObjectBuilders(final ResponseData data) {
       this.data = data;
     }
 
-    public IncludesResourceObjectBuilders<D> include(final Object include) {
+    public IncludesResourceObjectBuilders include(final Object include) {
       includes.add(include);
       return this;
     }
 
-    public IncludesResourceObjectBuilders<D> link(final String key, final String link) {
+    public IncludesResourceObjectBuilders link(final String key, final String link) {
       links.put(key, link);
       return this;
     }
 
-    public IncludesResourceObjectBuilders<D> link(final String key, final JsonLink link) {
+    public IncludesResourceObjectBuilders link(final String key, final JsonLink link) {
       links.put(key, link);
       return this;
     }
 
-    public IncludesResourceObjectBuilders<D> meta(final Object meta) {
+    public IncludesResourceObjectBuilders meta(final Object meta) {
       this.meta = meta;
       return this;
     }
 
-    public IncludesResourceObjectImpl<D> build() {
-      final IncludesResourceObjectImpl<D> doc = new IncludesResourceObjectImpl<D>();
+    public IncludesResourceObjectImpl build() {
+      final IncludesResourceObjectImpl doc = new IncludesResourceObjectImpl();
       doc.setData(data);
       doc.setType(EntityUtil.getType(data.attributes));
 
@@ -137,38 +137,38 @@ public class JSONAPI {
     }
   }
 
-  public static class ResourceObjectBuilder<D> {
-    private final ResponseData<D> data;
+  public static class ResourceObjectBuilder {
+    private final ResponseData data;
     private final List<Object> includes = Lists.newLinkedList();
     private final Map<String, Object> links = Maps.newHashMap();
     private Object meta;
 
-    public ResourceObjectBuilder(final ResponseData<D> data) {
+    public ResourceObjectBuilder(final ResponseData data) {
       this.data = data;
     }
 
-    public ResourceObjectBuilder<D> include(final Object include) {
+    public ResourceObjectBuilder include(final Object include) {
       includes.add(include);
       return this;
     }
 
-    public ResourceObjectBuilder<D> link(final String key, final String link) {
+    public ResourceObjectBuilder link(final String key, final String link) {
       links.put(key, link);
       return this;
     }
 
-    public ResourceObjectBuilder<D> link(final String key, final JsonLink link) {
+    public ResourceObjectBuilder link(final String key, final JsonLink link) {
       links.put(key, link);
       return this;
     }
 
-    public ResourceObjectBuilder<D> meta(final Object meta) {
+    public ResourceObjectBuilder meta(final Object meta) {
       this.meta = meta;
       return this;
     }
 
-    public ResourceObjectImpl<D> build() {
-      final ResourceObjectImpl<D> doc = new ResourceObjectImpl<D>();
+    public ResourceObjectImpl build() {
+      final ResourceObjectImpl doc = new ResourceObjectImpl();
       doc.setData(data);
       doc.setType(getType(data.attributes));
 
@@ -184,7 +184,7 @@ public class JSONAPI {
       return doc;
     }
 
-    private String getType(final D data) {
+    private String getType(final Object data) {
       final ApiModel model = data.getClass().getAnnotation(ApiModel.class);
       if (model != null) {
         String type = model.value();
