@@ -12,21 +12,21 @@ public class JsonLink {
 
 	private final String self;
 	private final String related;
-	private final List<Linkage> linkage;
+	private final List<Data> data;
 	private final Object meta;
 	
 	@JsonCreator
-	public JsonLink(@JsonProperty("self") String self, @JsonProperty("related") String related, @JsonProperty("linkage") List<Linkage> linkage,
+	public JsonLink(@JsonProperty("self") String self, @JsonProperty("related") String related, @JsonProperty("data") List<Data> data,
 			@JsonProperty("meta") Object meta) {
 		super();
 		this.self = self;
 		this.related = related;
-		this.linkage = linkage;
+		this.data = data;
 		this.meta = meta;
 	}
 
-	public JsonLink(String self, String related, List<Linkage> linkage) {
-		this(self, related, linkage, null);
+	public JsonLink(String self, String related, List<Data> data) {
+		this(self, related, data, null);
 	}
 	
 	public String getSelf() {
@@ -37,8 +37,8 @@ public class JsonLink {
 		return related;
 	}
 
-	public List<Linkage> getLinkage() {
-		return linkage;
+	public List<Data> getData() {
+		return data;
 	}
 
 	public Object getMeta() {

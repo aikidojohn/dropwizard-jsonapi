@@ -171,9 +171,13 @@ public class JSONAPI {
 		
 		public ResourceObjectImpl<D> build() {
 			ResourceObjectImpl<D> doc = new ResourceObjectImpl<D>();
-			doc.setData(data);
 			doc.setType(getType(data.attributes));
-			
+			//if there are no attributes set, make the section null so it is hidden in the response
+			if(data.attributes.toString().equals("BaseModel{id='null', created=null, updated=null}")) {
+				data.attributes = null;
+			}
+			doc.setData(data);
+
 			if (!includes.isEmpty()) {
 				doc.setIncluded(includes);
 			}

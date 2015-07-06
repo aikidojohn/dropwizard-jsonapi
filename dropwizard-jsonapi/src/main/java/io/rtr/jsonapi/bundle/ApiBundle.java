@@ -1,5 +1,6 @@
 package io.rtr.jsonapi.bundle;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.dropwizard.Bundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -12,6 +13,7 @@ public class ApiBundle implements Bundle {
 	@Override
 	public void initialize(Bootstrap<?> bootstrap) {
 		bootstrap.getObjectMapper().addMixInAnnotations(Object.class, FieldFilterMixIn.class);
+		bootstrap.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 	}
 
 	@Override

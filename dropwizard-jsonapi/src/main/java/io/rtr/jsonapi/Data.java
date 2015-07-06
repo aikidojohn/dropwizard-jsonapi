@@ -3,12 +3,12 @@ package io.rtr.jsonapi;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Linkage {
+public class Data {
 	private final String type;
 	private final String id;
 	
 	@JsonCreator
-	public Linkage(@JsonProperty("type") String type, @JsonProperty("id") String id) {
+	public Data(@JsonProperty("type") String type, @JsonProperty("id") String id) {
 		super();
 		this.type = type;
 		this.id = id;

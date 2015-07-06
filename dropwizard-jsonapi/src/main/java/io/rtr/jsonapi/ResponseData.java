@@ -32,7 +32,8 @@ public class ResponseData<T> {
       Field field = FieldUtil.findDeclaredField(obj, "id");
       field.setAccessible(true);
       field.set(obj, null);
-    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | NullPointerException e) {
+      //catch a NPE here if we have a null attributes section on purpose due to no values in the attributes section
       e.printStackTrace();
     }
   }

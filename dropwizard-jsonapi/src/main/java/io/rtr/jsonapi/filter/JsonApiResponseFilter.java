@@ -4,7 +4,7 @@ import io.rtr.jsonapi.JSONAPI;
 import io.rtr.jsonapi.JSONAPI.ApiDocumentBuilder;
 import io.rtr.jsonapi.JSONAPI.ResourceObjectBuilder;
 import io.rtr.jsonapi.JsonLink;
-import io.rtr.jsonapi.Linkage;
+import io.rtr.jsonapi.Data;
 import io.rtr.jsonapi.ResponseData;
 import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
@@ -115,20 +115,23 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 				if (id != null) {
 					final String uri = template.createURI(id);
 					final String linkSelfUri = uriInfo.getBaseUri().resolve(uri.substring(1)).toString();
+					final List<Object> included = resolveIncludes(resource, entity, id, key, m);
+					final List<Data> includeData = Lists.newLinkedList();
+					//always get the base included values in the relationship section
+					for (Object inc : included) {
+						final String incId = getId(inc);
+						final String type = getModelType(inc.getClass());
+						includeData.add(new Data(type, incId));
+						//try to not have an Id in both the attributes and relationship sections
+						//we are guessing on the Id name
+						setFieldNull(responseData.getAttributes(), key+"Id");
+					}
+					if(!key.equals("self") && !key.equals(EntityUtil.getType(entity))) {
+						// the related might want to be populated
+						dataBuilder.link(key, new JsonLink(linkSelfUri, null, includeData));
+					}
 					if (includeKeys.contains(key)) {
-						final List<Object> included = resolveIncludes(resource, entity, id, key, m); 
-						final List<Linkage> includeLinkage = Lists.newLinkedList();
-						for (Object inc : included) {
-							final String incId = getId(inc);
-							final String type = getModelType(inc.getClass());
-							includeLinkage.add(new Linkage(type, incId));
-						}
-						dataBuilder.link(key,  new JsonLink(null, linkSelfUri, includeLinkage));
 						includes.addAll(included);
-					} else {
-						if (!key.equals("self") && !key.equals(EntityUtil.getType(entity))) {
-							dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
-						}
 					}
 				}
 			}
@@ -147,19 +150,25 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		responseData.setType(entity.getClass().getTypeName());
 		responseData.setId(getId(entity));
 		final JSONAPI.IncludesResourceObjectBuilders dataBuilder = JSONAPI.includesData(responseData);
-		if (m != null) {
-			String key = "self";
-			//use the template for the entity that is included, not the base entity
-			UriTemplate template = new UriTemplate(m.getPathTemplate(EntityUtil.getType(entity)));
-			String id = getId(entity);
-			if (id != null) {
-				String uri = template.createURI(id);
-				dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
-				//recursive includes?
-				//if (includeKeys.contains(key)) {
-				//	includes.addAll(resolveIncludes(resource, entity, id, key, m));
-				//}
+		try {
+			if (m != null) {
+				String key = "self";
+				//use the template for the entity that is included, not the base entity
+				UriTemplate template = new UriTemplate(m.getPathTemplate(EntityUtil.getType(entity)));
+				String id = getId(entity);
+				if (id != null) {
+					String uri = template.createURI(id);
+					dataBuilder.link(key, uriInfo.getBaseUri().resolve(uri.substring(1)).toString());
+					//recursive includes?
+					//if (includeKeys.contains(key)) {
+					//	includes.addAll(resolveIncludes(resource, entity, id, key, m));
+					//}
+				}
 			}
+		}
+		catch (Exception e) {
+			//TODO figure out why we are getting invalid template names here
+			log.warn("Exception getting templates, {}", e);
 		}
 		return dataBuilder.build();
 	}
@@ -209,6 +218,19 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	private void setFieldNull(Object obj, String fieldName) {
+		try {
+			Field field = FieldUtil.findDeclaredField(obj, fieldName);
+			field.setAccessible(true);
+			field.set(obj, null);
+		} catch (NoSuchFieldException e) {
+			log.info("Could not set field {} to null, no such field", fieldName);
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private String getModelType(Class<?> type) {
