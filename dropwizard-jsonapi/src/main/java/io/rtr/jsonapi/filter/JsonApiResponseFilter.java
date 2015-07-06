@@ -228,8 +228,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		} catch (NoSuchFieldException e) {
 			log.info("Could not set field {} to null, no such field", fieldName);
 		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("Exception while setting field {} to null: {}", fieldName, e);
 		}
 	}
 

@@ -4,6 +4,7 @@ import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.impl.ApiDocumentImpl;
 import io.rtr.jsonapi.impl.ResourceObjectImpl;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -172,8 +173,7 @@ public class JSONAPI {
 		public ResourceObjectImpl<D> build() {
 			ResourceObjectImpl<D> doc = new ResourceObjectImpl<D>();
 			doc.setType(getType(data.attributes));
-			//if there are no attributes set, make the section null so it is hidden in the response
-			if(data.attributes.toString().equals("BaseModel{id='null', created=null, updated=null}")) {
+			if (data.isEmpty()) {
 				data.attributes = null;
 			}
 			doc.setData(data);
