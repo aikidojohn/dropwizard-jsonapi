@@ -4,6 +4,7 @@ import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.impl.ApiDocumentImpl;
 import io.rtr.jsonapi.impl.ResourceObjectImpl;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -171,9 +172,12 @@ public class JSONAPI {
 		
 		public ResourceObjectImpl<D> build() {
 			ResourceObjectImpl<D> doc = new ResourceObjectImpl<D>();
-			doc.setData(data);
 			doc.setType(getType(data.attributes));
-			
+			if (data.isEmpty()) {
+				data.attributes = null;
+			}
+			doc.setData(data);
+
 			if (!includes.isEmpty()) {
 				doc.setIncluded(includes);
 			}

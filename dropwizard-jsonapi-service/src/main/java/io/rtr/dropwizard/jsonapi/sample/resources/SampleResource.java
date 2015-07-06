@@ -10,7 +10,6 @@ import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -38,7 +37,7 @@ public class SampleResource {
 
 		JsonLink authorLink = new JsonLink(uriInfo.getAbsolutePath().toString() + "/1/links/author", 
 				uriInfo.getAbsolutePath().toString() + "/1/author", 
-				Lists.newArrayList(new Linkage("people", "2")));
+				Lists.newArrayList(new Data("people", "2")));
 		ResponseData<Person> personData = new ResponseData<>();
 		personData.setAttributes(author);
 		personData.setType(author.getClass().getTypeName());
