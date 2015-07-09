@@ -112,7 +112,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			for (String key : m.getKeys()) {
 				UriTemplate template = new UriTemplate(m.getPathTemplate(key));
 				String id = getId(entity);
-				if (id != null) {
+				if (id != null && !id.equals("null")) {
 					final String uri = template.createURI(id);
 					final String linkSelfUri = uriInfo.getBaseUri().resolve(uri.substring(1)).toString();
 					final List<Object> included = resolveIncludes(resource, entity, id, key, m);
