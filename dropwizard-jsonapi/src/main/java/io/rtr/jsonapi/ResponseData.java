@@ -41,7 +41,7 @@ public class ResponseData<T> {
       field.set(obj, null);
     } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | NullPointerException e) {
       //catch a NPE here if we have a null attributes section on purpose due to no values in the attributes section
-      log.warn("exception while setting Id attribute to null: {}", e);
+      log.info("exception while setting Id attribute to null: {}", e);
     }
   }
 
