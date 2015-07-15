@@ -226,7 +226,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			field.setAccessible(true);
 			field.set(obj, null);
 		} catch (NoSuchFieldException e) {
-			log.info("Could not set field {} to null, no such field", fieldName);
+			log.debug("Could not set field {} to null, no such field", fieldName);
 		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			log.warn("Exception while setting field {} to null: {}", fieldName, e);
 		}
