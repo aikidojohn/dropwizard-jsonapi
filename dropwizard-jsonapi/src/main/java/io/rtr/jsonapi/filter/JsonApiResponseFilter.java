@@ -214,8 +214,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			}
 			return String.valueOf(id);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.info("Cannot getId for obj = " + obj + ", with exception = " + e.getMessage());
 		}
 		return null;
 	}
