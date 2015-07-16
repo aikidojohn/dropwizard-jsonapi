@@ -1,11 +1,8 @@
 package io.rtr.jsonapi.filter;
 
-import io.rtr.jsonapi.JSONAPI;
+import io.rtr.jsonapi.*;
 import io.rtr.jsonapi.JSONAPI.ApiDocumentBuilder;
 import io.rtr.jsonapi.JSONAPI.ResourceObjectBuilder;
-import io.rtr.jsonapi.JsonLink;
-import io.rtr.jsonapi.Data;
-import io.rtr.jsonapi.ResponseData;
 import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext.Mapping;
@@ -40,6 +37,7 @@ import com.google.common.collect.Lists;
 public class JsonApiResponseFilter implements ContainerResponseFilter {
 	private static final Logger log = LoggerFactory.getLogger(JsonApiResponseFilter.class);
 	public static final MediaType JSONAPI_MEDIATYPE = MediaType.valueOf("application/vnd.api+json");
+	private static final String UNAUTHORIZED_ERROR_DETAILS = "Credentials are required to access this resource.";
 	
 	@Context
 	private UriInfo uriInfo;
@@ -56,15 +54,20 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			log.trace("JSON API not requested");
 			return;
 		}
+
 		log.trace("HANDLING JSON API");
-		
+		if(responseContext.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
+			setUnauthorizedErrorEntity(responseContext);
+			return;
+		}
+
 		final Object entity = responseContext.getEntity();
 		if (entity != null && !uriInfo.getMatchedResources().isEmpty()) {
 			List<Object> resources = uriInfo.getMatchedResources();
 			Object resource = resources.get(0);
 			Mapping requestResourceMapping= resourceMapping.getMapping(resource.getClass());
 
-			List<Object> inculdeObjects = Lists.newArrayList();
+			List<Object> includeObjects = Lists.newArrayList();
 			List<String> includeKeys = Lists.newArrayList();
 			if (uriInfo.getQueryParameters().containsKey("include")) {
 				includeKeys.addAll(uriInfo.getQueryParameters().get("include"));
@@ -73,24 +76,24 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			ApiDocumentBuilder<Object> docBuilder = null;
 			if (entity.getClass().isArray()) {
 				final Object[] entityArray = (Object[])entity;
-				final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(Arrays.stream(entityArray), requestResourceMapping,  resource, includeKeys, inculdeObjects);
+				final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(Arrays.stream(entityArray), requestResourceMapping,  resource, includeKeys, includeObjects);
 
 				docBuilder = JSONAPI.document(resourceObjects);
 			} 
 			else if (Collection.class.isAssignableFrom(entity.getClass())) {
 				final Collection<?> entityCollection = (Collection<?>)entity;
-				final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(entityCollection.stream(), requestResourceMapping,  resource, includeKeys, inculdeObjects);
+				final List<ResourceObjectImpl<Object>> resourceObjects = buildEntityList(entityCollection.stream(), requestResourceMapping,  resource, includeKeys, includeObjects);
 			
 				docBuilder = JSONAPI.document(resourceObjects);
 			} 
 			else {
-				final ResourceObjectImpl<Object> data = buildEntity(requestResourceMapping, entity, resource, includeKeys, inculdeObjects);
+				final ResourceObjectImpl<Object> data = buildEntity(requestResourceMapping, entity, resource, includeKeys, includeObjects);
 				docBuilder = JSONAPI.document(data);
 			}
 			
 			docBuilder.link("self", uriInfo.getRequestUri().toString());
-			for (Object inc : inculdeObjects) {
-				docBuilder.include(buildIncludeEntity(requestResourceMapping, inc,  resource, includeKeys, inculdeObjects));
+			for (Object inc : includeObjects) {
+				docBuilder.include(buildIncludeEntity(requestResourceMapping, inc,  resource, includeKeys, includeObjects));
 			}
 			setStatusCode(requestContext, responseContext);
 			responseContext.setEntity(docBuilder.build(uriInfo));
@@ -255,5 +258,14 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		} else if(HttpMethod.DELETE.equals(requestContext.getMethod())) {
 			responseContext.setStatusInfo(Response.Status.NO_CONTENT);
 		}
+	}
+
+	private void setUnauthorizedErrorEntity(ContainerResponseContext responseContext) {
+		io.rtr.jsonapi.Error error = new io.rtr.jsonapi.Error();
+		error.setStatus(String.valueOf(Response.Status.UNAUTHORIZED.getStatusCode()));
+		error.setCode(String.valueOf(Response.Status.UNAUTHORIZED));
+		error.setTitle(Response.Status.UNAUTHORIZED.getReasonPhrase());
+		error.setDetail(UNAUTHORIZED_ERROR_DETAILS);
+		responseContext.setEntity(new ErrorDocument(error), null, JSONAPI_MEDIATYPE);
 	}
 }
