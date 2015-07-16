@@ -326,7 +326,7 @@ public class ResourceMappingContext {
       try {
         return accessor.invoke(resource, args);
       } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        log.warn("Failed to invoke resource method.", e);
+        log.info("Failed to invoke resource method. Exception = " + e.getMessage());
       }
 
       return null;
