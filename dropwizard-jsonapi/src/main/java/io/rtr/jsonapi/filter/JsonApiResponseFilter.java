@@ -171,7 +171,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		}
 		catch (Exception e) {
 			//TODO figure out why we are getting invalid template names here
-			log.warn("Exception getting templates, {}", e);
+			log.info("Failed to get templates. Exception = " + e.getMessage());
 		}
 		return dataBuilder.build();
 	}
