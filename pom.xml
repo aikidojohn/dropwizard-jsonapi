@@ -4,7 +4,7 @@
 
 	<groupId>io.rtr.dropwizard.jsonapi</groupId>
 	<artifactId>dropwizard-jsonapi-parent</artifactId>
-	<version>0.18-SNAPSHOT</version>
+	<version>0.18</version>
 	<packaging>pom</packaging>
 
 	<name>Dropwizard JSONAP Extension</name>
@@ -18,7 +18,7 @@
 	<scm>
 		<connection>scm:git:git@github.com:RentTheRunway2/dropwizard-jsonapi.git</connection>
 		<url>scm:git:git@github.com:RentTheRunway2/dropwizard-jsonapi.git</url>
-		<tag>v0.6</tag>
+		<tag>v0.18</tag>
 	</scm>
 
 	<properties>
