@@ -12,6 +12,14 @@ public class Article {
   private String title;
   private String body;
 
+  public Article() {}
+
+  public Article(Article other) {
+    this.id = other.id;
+    this.title = other.title;
+    this.body = other.body;
+  }
+
   public String getId() {
     return id;
   }

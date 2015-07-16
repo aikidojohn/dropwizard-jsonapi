@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DataStore {
   private final Map<String, Article> articles = Maps.newHashMap();
@@ -29,27 +30,27 @@ public class DataStore {
   }
 
   public List<Article> getArticles() {
-    return Lists.newArrayList(articles.values());
+    return articles.values().stream().map(a -> new Article(a)).collect(Collectors.toList());
   }
 
   public List<Person> getPeople() {
-    return Lists.newArrayList(people.values());
+    return people.values().stream().map(p -> new Person(p)).collect(Collectors.toList());
   }
 
   public Article getArticle(final String id) {
-    return articles.get(id);
+    return new Article(articles.get(id));
   }
 
   public Person getPerson(final String id) {
-    return people.get(id);
+    return new Person(people.get(id));
   }
 
   public List<Article> getArticlesByAuthor(final String authorId) {
-    return authorArticles.get(authorId);
+    return authorArticles.get(authorId).stream().map(a -> new Article(a)).collect(Collectors.toList());
   }
 
   public Person getAuthor(final String articleId) {
-    return articleAuthors.get(articleId);
+    return new Person(articleAuthors.get(articleId));
   }
 
   private void addAuthor(final String personId, final String articleId) {
@@ -66,7 +67,7 @@ public class DataStore {
   public Person addPerson(final String id, final String name, final String company) {
     final Person p = createPerson(id, name, company);
     people.put(id, p);
-    return p;
+    return new Person(p);
   }
 
   public void removePerson(final String id) {

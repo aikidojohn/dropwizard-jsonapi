@@ -12,6 +12,15 @@ public class Person extends BaseModel {
   private String name;
   private String company;
 
+  public Person() {}
+  
+  public Person(Person other) {
+    this.name = other.name;
+    this.company = other.company;
+    setId(other.getId());
+    setCreated(other.getCreated());
+  }
+  
   public String getName() {
     return name;
   }
