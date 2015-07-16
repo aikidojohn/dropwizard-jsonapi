@@ -40,6 +40,7 @@ import javax.ws.rs.core.UriInfo;
 public class JsonApiResponseFilter implements ContainerResponseFilter {
   private static final Logger log = LoggerFactory.getLogger(JsonApiResponseFilter.class);
   public static final MediaType JSONAPI_MEDIATYPE = MediaType.valueOf("application/vnd.api+json");
+  private static final String UNAUTHORIZED_ERROR_DETAILS = "Credentials are required to access this resource.";
 
   @Context
   private UriInfo uriInfo;
@@ -57,6 +58,10 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
       return;
     }
     log.trace("HANDLING JSON API");
+    if(responseContext.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
+      setUnauthorizedErrorEntity(responseContext);
+      return;
+    }
 
     final Object entity = responseContext.getEntity();
     if (entity != null && !uriInfo.getMatchedResources().isEmpty()) {
@@ -255,5 +260,14 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
     } else if (HttpMethod.DELETE.equals(requestContext.getMethod())) {
       responseContext.setStatusInfo(Response.Status.NO_CONTENT);
     }
+  }
+
+  private void setUnauthorizedErrorEntity(ContainerResponseContext responseContext) {
+    io.rtr.jsonapi.Error error = new io.rtr.jsonapi.Error();
+    error.setStatus(String.valueOf(Response.Status.UNAUTHORIZED.getStatusCode()));
+    error.setCode(String.valueOf(Response.Status.UNAUTHORIZED));
+    error.setTitle(Response.Status.UNAUTHORIZED.getReasonPhrase());
+    error.setDetail(UNAUTHORIZED_ERROR_DETAILS);
+    responseContext.setEntity(new ErrorDocument(error), null, JSONAPI_MEDIATYPE);
   }
 }
