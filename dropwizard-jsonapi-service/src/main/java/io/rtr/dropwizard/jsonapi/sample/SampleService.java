@@ -3,7 +3,6 @@ package io.rtr.dropwizard.jsonapi.sample;
 import io.rtr.dropwizard.jsonapi.sample.health.SampleHealthCheck;
 import io.rtr.dropwizard.jsonapi.sample.resources.ArticlesResource;
 import io.rtr.dropwizard.jsonapi.sample.resources.PeopleResource;
-import io.rtr.dropwizard.jsonapi.sample.resources.SampleResource;
 import io.rtr.jsonapi.bundle.ApiBundle;
 
 import io.dropwizard.Application;
@@ -12,7 +11,7 @@ import io.dropwizard.setup.Environment;
 
 public class SampleService extends Application<SampleConfiguration> {
 
-  private final Class<?>[] RESOURCES = { SampleResource.class, ArticlesResource.class, PeopleResource.class };
+  private final Class<?>[] RESOURCES = { ArticlesResource.class, PeopleResource.class };
   private final Class<?>[] MANAGED = {};
 
   @Override
