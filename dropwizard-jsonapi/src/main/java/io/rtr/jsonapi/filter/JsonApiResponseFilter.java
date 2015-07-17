@@ -1,10 +1,11 @@
 package io.rtr.jsonapi.filter;
 
+import io.rtr.jsonapi.Data;
+import io.rtr.jsonapi.ErrorDocument;
 import io.rtr.jsonapi.JSONAPI;
 import io.rtr.jsonapi.JSONAPI.ApiDocumentBuilder;
 import io.rtr.jsonapi.JSONAPI.ResourceObjectBuilder;
 import io.rtr.jsonapi.JsonLink;
-import io.rtr.jsonapi.Data;
 import io.rtr.jsonapi.ResponseData;
 import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
@@ -58,7 +59,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
       return;
     }
     log.trace("HANDLING JSON API");
-    if(responseContext.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
+    if (responseContext.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
       setUnauthorizedErrorEntity(responseContext);
       return;
     }
