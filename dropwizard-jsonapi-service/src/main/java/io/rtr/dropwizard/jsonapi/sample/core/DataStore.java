@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DataStore {
@@ -17,6 +18,7 @@ public class DataStore {
   private final Map<String, Person> people = Maps.newHashMap();
   private final Map<String, List<Article>> authorArticles = Maps.newHashMap();
   private final Map<String, Person> articleAuthors = Maps.newHashMap();
+  private int nextPersonId = 5;
 
   public DataStore() {
     addArticle("1", "My Amazing Article about JSON API", "Lorem ipsum dolor sit amet.");
@@ -65,9 +67,14 @@ public class DataStore {
   }
 
   public Person addPerson(final String id, final String name, final String company) {
-    final Person p = createPerson(id, name, company);
+    final Optional<String> idOpt = Optional.ofNullable(id);
+    final Person p = createPerson(idOpt.orElse(nextPersonId()), name, company);
     people.put(id, p);
     return new Person(p);
+  }
+  
+  private String nextPersonId() {
+    return String.valueOf(nextPersonId++);
   }
 
   public void removePerson(final String id) {

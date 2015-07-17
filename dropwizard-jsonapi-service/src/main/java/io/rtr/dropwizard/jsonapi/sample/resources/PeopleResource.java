@@ -30,8 +30,8 @@ public class PeopleResource {
   }
 
   @POST
-  public Person postPerson() {
-    return store.addPerson("5", "Zain Cheng", "Rent the Runway");
+  public Person postPerson(Person person) {
+    return store.addPerson(person.getId(), person.getName(), person.getCompany());
   }
 
   @DELETE
