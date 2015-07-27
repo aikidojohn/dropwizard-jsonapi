@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -29,6 +30,7 @@ import javax.ws.rs.core.UriInfo;
 import io.rtr.jsonapi.impl.IncludesResourceObjectImpl;
 import io.rtr.jsonapi.util.EntityUtil;
 import io.rtr.jsonapi.util.FieldUtil;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.glassfish.jersey.uri.UriTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -290,8 +292,8 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 		io.rtr.jsonapi.Error error = new io.rtr.jsonapi.Error();
 		String numericalStatusCodeAsString = String.valueOf(Response.Status.UNAUTHORIZED.getStatusCode());
 		error.setStatus(numericalStatusCodeAsString);
-		error.setCode(numericalStatusCodeAsString);
-		error.setTitle(Response.Status.UNAUTHORIZED.getReasonPhrase());
+		error.setCode(Response.Status.UNAUTHORIZED.getReasonPhrase());
+		error.setTitle(NotAuthorizedException.class.getSimpleName());
 		error.setDetail(UNAUTHORIZED_ERROR_DETAILS);
 		responseContext.setEntity(new ErrorDocument(error), null, JSONAPI_MEDIATYPE);
 	}
@@ -303,15 +305,14 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 
 		Throwable throwable = (Throwable) entity;
 		String statusCodeAsString = String.valueOf(responseContext.getStatus());
-		String reasonPhrase = responseContext.getStatusInfo() != null ?
-													responseContext.getStatusInfo().getReasonPhrase() : DEFAULT_STATUS.getReasonPhrase();
-		String applicationMessage = throwable.getCause() != null ?
-																throwable.getCause().getMessage() : throwable.getMessage();
+		String reasonPhrase = responseContext.getStatusInfo() != null ? responseContext.getStatusInfo().getReasonPhrase() : DEFAULT_STATUS.getReasonPhrase();
+		String problemSummary = throwable.getCause() != null ? throwable.getCause().getClass().getSimpleName() : throwable.getClass().getSimpleName();
+		String applicationMessage = throwable.getCause() != null ? throwable.getCause().getMessage() : throwable.getMessage();
 
 		Error error = new Error();
-		error.setStatus(statusCodeAsString); // Numerical status code, expressed as a String
-		error.setCode(statusCodeAsString); 		// Application-specific error code, expressed as a String
-		error.setTitle(reasonPhrase); 				// Human-readable summary of problem that shouldn't change
+		error.setStatus(statusCodeAsString);	// Numerical status code, expressed as a String
+		error.setCode(reasonPhrase); 					// Reason phrase
+		error.setTitle(problemSummary); 			// Human-readable summary of problem that shouldn't change
 		error.setDetail(applicationMessage);  // Human-readable explanation specific to this occurrence of the problem
 		responseContext.setEntity(new ErrorDocument(error), null, JSONAPI_MEDIATYPE);
 	}
