@@ -1,11 +1,10 @@
 package io.rtr.jsonapi.filter;
 
-import io.rtr.jsonapi.Data;
-import io.rtr.jsonapi.ErrorDocument;
 import io.rtr.jsonapi.JSONAPI;
 import io.rtr.jsonapi.JSONAPI.ApiDocumentBuilder;
 import io.rtr.jsonapi.JSONAPI.ResourceObjectBuilder;
 import io.rtr.jsonapi.JsonLink;
+import io.rtr.jsonapi.Data;
 import io.rtr.jsonapi.ResponseData;
 import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -37,6 +37,27 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import io.rtr.jsonapi.impl.IncludesResourceObjectImpl;
+import io.rtr.jsonapi.util.EntityUtil;
+import io.rtr.jsonapi.util.FieldUtil;
+import org.glassfish.jersey.uri.UriTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterInjector;
+import com.google.common.collect.Lists;
+
+import io.rtr.jsonapi.impl.IncludesResourceObjectImpl;
+import io.rtr.jsonapi.util.EntityUtil;
+import io.rtr.jsonapi.util.FieldUtil;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
+import org.glassfish.jersey.uri.UriTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterInjector;
+import com.google.common.collect.Lists;
 
 public class JsonApiResponseFilter implements ContainerResponseFilter {
   private static final Logger log = LoggerFactory.getLogger(JsonApiResponseFilter.class);
@@ -54,16 +75,19 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
     // Necessary for field filtering
     ObjectWriterInjector.set(new FilteredObjectWriterModifier(uriInfo, resourceMapping));
 
+    // 1) Check if the acceptable mediaType is JSON API.  If not, just return the response as it is
     if (!isApplicable(requestContext)) {
       log.trace("JSON API not requested");
       return;
     }
-    log.trace("HANDLING JSON API");
-    if (responseContext.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
-      setUnauthorizedErrorEntity(responseContext);
+    
+    // 2) If the response is an error, handle it as an error and return.
+    if(isError(responseContext)) {
+      handleError(responseContext);
       return;
     }
 
+    // 3) Normal handling for JSON API
     final Object entity = responseContext.getEntity();
     if (entity != null && !uriInfo.getMatchedResources().isEmpty()) {
       final List<Object> resources = uriInfo.getMatchedResources();
@@ -251,7 +275,9 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
   }
 
   private boolean isApplicable(final ContainerRequestContext requestContext) {
-    return requestContext.getAcceptableMediaTypes().stream().anyMatch(m -> JSONAPI_MEDIATYPE.equals(m));
+    return requestContext.getAcceptableMediaTypes()
+      .stream()
+      .anyMatch(m -> JSONAPI_MEDIATYPE.equals(m));
   }
 
 
@@ -262,13 +288,52 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
       responseContext.setStatusInfo(Response.Status.NO_CONTENT);
     }
   }
+  private void handleError(ContainerResponseContext responseContext) {
+    if(isUnauthorizedError(responseContext)) {
+      setUnauthorizedErrorEntity(responseContext);
+    } else if(isThrowableError(responseContext)) {
+      setErrorEntity(responseContext);
+    }
+  }
 
+  private boolean isError(ContainerResponseContext responseContext) {
+    return isUnauthorizedError(responseContext) || isThrowableError(responseContext);
+  }
+
+  private boolean isThrowableError(ContainerResponseContext responseContext) {
+    return responseContext.getEntity()!=null && responseContext.getEntity() instanceof Throwable;
+  }
+
+  private boolean isUnauthorizedError(ContainerResponseContext responseContext) {
+    return responseContext.getEntity()!=null && responseContext.getEntity() instanceof String
+      && responseContext.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode();
+  }
   private void setUnauthorizedErrorEntity(ContainerResponseContext responseContext) {
     io.rtr.jsonapi.Error error = new io.rtr.jsonapi.Error();
-    error.setStatus(String.valueOf(Response.Status.UNAUTHORIZED.getStatusCode()));
-    error.setCode(String.valueOf(Response.Status.UNAUTHORIZED));
-    error.setTitle(Response.Status.UNAUTHORIZED.getReasonPhrase());
+    String numericalStatusCodeAsString = String.valueOf(Response.Status.UNAUTHORIZED.getStatusCode());
+    error.setStatus(numericalStatusCodeAsString);
+    error.setCode(Response.Status.UNAUTHORIZED.getReasonPhrase());
+    error.setTitle(NotAuthorizedException.class.getSimpleName());
     error.setDetail(UNAUTHORIZED_ERROR_DETAILS);
+    responseContext.setEntity(new ErrorDocument(error), null, JSONAPI_MEDIATYPE);
+  }
+
+  private void setErrorEntity(ContainerResponseContext responseContext) {
+
+    Object entity = responseContext.getEntity();
+    assert(entity!=null && entity instanceof Throwable);
+
+    Throwable throwable = (Throwable) entity;
+    String statusCodeAsString = String.valueOf(responseContext.getStatus());
+    String reasonPhrase = responseContext.getStatusInfo() != null ? responseContext.getStatusInfo().getReasonPhrase() : DEFAULT_STATUS.getReasonPhrase();
+    String problemSummary = throwable.getCause() != null ? throwable.getCause().getClass().getSimpleName() : throwable.getClass().getSimpleName();
+    String applicationMessage = throwable.getCause() != null ? throwable.getCause().getMessage() : throwable.getMessage();
+
+    Error error = new Error();
+    error.setStatus(statusCodeAsString);	// Numerical status code, expressed as a String
+    error.setCode(reasonPhrase); 					// Reason phrase
+    error.setTitle(problemSummary); 			// Human-readable summary of problem that shouldn't change
+    error.setDetail(applicationMessage);  // Human-readable explanation specific to this occurrence of the problem
     responseContext.setEntity(new ErrorDocument(error), null, JSONAPI_MEDIATYPE);
   }
 }
