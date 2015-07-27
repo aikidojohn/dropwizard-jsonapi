@@ -1,10 +1,12 @@
 package io.rtr.jsonapi.filter;
 
+import io.rtr.jsonapi.Data;
+import io.rtr.jsonapi.ErrorDocument;
+import io.rtr.jsonapi.Error;
 import io.rtr.jsonapi.JSONAPI;
 import io.rtr.jsonapi.JSONAPI.ApiDocumentBuilder;
 import io.rtr.jsonapi.JSONAPI.ResourceObjectBuilder;
 import io.rtr.jsonapi.JsonLink;
-import io.rtr.jsonapi.Data;
 import io.rtr.jsonapi.ResponseData;
 import io.rtr.jsonapi.annotation.ApiModel;
 import io.rtr.jsonapi.filter.mapping.ResourceMappingContext;
@@ -38,30 +40,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import io.rtr.jsonapi.impl.IncludesResourceObjectImpl;
-import io.rtr.jsonapi.util.EntityUtil;
-import io.rtr.jsonapi.util.FieldUtil;
-import org.glassfish.jersey.uri.UriTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterInjector;
-import com.google.common.collect.Lists;
-
-import io.rtr.jsonapi.impl.IncludesResourceObjectImpl;
-import io.rtr.jsonapi.util.EntityUtil;
-import io.rtr.jsonapi.util.FieldUtil;
-import org.eclipse.jetty.security.authentication.BasicAuthenticator;
-import org.glassfish.jersey.uri.UriTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterInjector;
-import com.google.common.collect.Lists;
-
 public class JsonApiResponseFilter implements ContainerResponseFilter {
   private static final Logger log = LoggerFactory.getLogger(JsonApiResponseFilter.class);
   public static final MediaType JSONAPI_MEDIATYPE = MediaType.valueOf("application/vnd.api+json");
+  private static final Response.Status DEFAULT_STATUS = Response.Status.INTERNAL_SERVER_ERROR;
   private static final String UNAUTHORIZED_ERROR_DETAILS = "Credentials are required to access this resource.";
 
   @Context
@@ -82,7 +64,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
     }
     
     // 2) If the response is an error, handle it as an error and return.
-    if(isError(responseContext)) {
+    if (isError(responseContext)) {
       handleError(responseContext);
       return;
     }
@@ -288,10 +270,11 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
       responseContext.setStatusInfo(Response.Status.NO_CONTENT);
     }
   }
+
   private void handleError(ContainerResponseContext responseContext) {
-    if(isUnauthorizedError(responseContext)) {
+    if (isUnauthorizedError(responseContext)) {
       setUnauthorizedErrorEntity(responseContext);
-    } else if(isThrowableError(responseContext)) {
+    } else if (isThrowableError(responseContext)) {
       setErrorEntity(responseContext);
     }
   }
@@ -301,13 +284,14 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
   }
 
   private boolean isThrowableError(ContainerResponseContext responseContext) {
-    return responseContext.getEntity()!=null && responseContext.getEntity() instanceof Throwable;
+    return responseContext.getEntity() != null && responseContext.getEntity() instanceof Throwable;
   }
 
   private boolean isUnauthorizedError(ContainerResponseContext responseContext) {
-    return responseContext.getEntity()!=null && responseContext.getEntity() instanceof String
+    return responseContext.getEntity() != null && responseContext.getEntity() instanceof String
       && responseContext.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode();
   }
+  
   private void setUnauthorizedErrorEntity(ContainerResponseContext responseContext) {
     io.rtr.jsonapi.Error error = new io.rtr.jsonapi.Error();
     String numericalStatusCodeAsString = String.valueOf(Response.Status.UNAUTHORIZED.getStatusCode());
@@ -321,18 +305,19 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
   private void setErrorEntity(ContainerResponseContext responseContext) {
 
     Object entity = responseContext.getEntity();
-    assert(entity!=null && entity instanceof Throwable);
+    assert (entity != null && entity instanceof Throwable);
 
     Throwable throwable = (Throwable) entity;
     String statusCodeAsString = String.valueOf(responseContext.getStatus());
-    String reasonPhrase = responseContext.getStatusInfo() != null ? responseContext.getStatusInfo().getReasonPhrase() : DEFAULT_STATUS.getReasonPhrase();
+    String reasonPhrase = responseContext.getStatusInfo() != null 
+        ? responseContext.getStatusInfo().getReasonPhrase() : DEFAULT_STATUS.getReasonPhrase();
     String problemSummary = throwable.getCause() != null ? throwable.getCause().getClass().getSimpleName() : throwable.getClass().getSimpleName();
     String applicationMessage = throwable.getCause() != null ? throwable.getCause().getMessage() : throwable.getMessage();
 
     Error error = new Error();
-    error.setStatus(statusCodeAsString);	// Numerical status code, expressed as a String
-    error.setCode(reasonPhrase); 					// Reason phrase
-    error.setTitle(problemSummary); 			// Human-readable summary of problem that shouldn't change
+    error.setStatus(statusCodeAsString);  // Numerical status code, expressed as a String
+    error.setCode(reasonPhrase);          // Reason phrase
+    error.setTitle(problemSummary);       // Human-readable summary of problem that shouldn't change
     error.setDetail(applicationMessage);  // Human-readable explanation specific to this occurrence of the problem
     responseContext.setEntity(new ErrorDocument(error), null, JSONAPI_MEDIATYPE);
   }
